@@ -3,6 +3,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Detail } from './pages/Detail';
 import { Layout } from './components/Layout';
 import Profile from './pages/Profile';
+import { Location } from './pages/Location';
 
 const routes = [
   {
@@ -10,6 +11,7 @@ const routes = [
     children: [
       { path: '/detail', element: <Detail /> },
       { path: '/profile', element: <Profile /> },
+      { path: '/location', element: <Location /> },
     ]
   },
 ];
