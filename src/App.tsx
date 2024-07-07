@@ -6,6 +6,14 @@ import { IntroPage } from './pages/IntroPage/IntroPage'; // PascalCase로 import
 import Profile from './pages/Profile';
 import { Location } from './pages/Location';
 
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
+
+export const kakao: any = window['kakao'];
+
 const routes = [
   {
     element: <Layout />,
@@ -14,7 +22,7 @@ const routes = [
       { path: '/intropage', element: <IntroPage /> },
       { path: '/profile', element: <Profile /> },
       { path: '/location', element: <Location /> },
-    ]
+    ],
   },
 ];
 
