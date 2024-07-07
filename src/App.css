@@ -1,3 +1,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 
+디테일 페이지에 참가하기 버튼 fixed된 부분 겹침
+해당 부분을 height에서 빼기 위한 스타일
+calc tailwind에서 대응 안됨
+*/
+.detail_calc {
+  height: calc(100% - 63px);
+}
+
+/* 
+  modal width에서 좌우 공백을 위해 40px 뺌
+*/
+.modal_wcalc {
+  width: calc(100% - 40px);
+}
+
+.modal_hcalc {
+  height: calc(100% - 58px);
+}
