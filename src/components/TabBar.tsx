@@ -12,7 +12,7 @@ const TabBar: React.FC = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed box-border left-0 bottom-0 w-full bg-white">
+    <nav className="border-t max-w-3xl fixed -translate-x-[20px] box-border bottom-0 w-full bg-white">
       <ul className="flex justify-between list-none">
         {tabs.map((tab) => (
           <li key={tab.name} className="flex-1 text-center">
