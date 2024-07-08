@@ -7,9 +7,9 @@
 해당 부분을 height에서 빼기 위한 스타일
 calc tailwind에서 대응 안됨
 */
-.detail_calc {
-  height: calc(100% - 63px);
-}
+/* .detail_calc {
+  height: calc(100% - 103px);
+} */
 
 /* 
   modal width에서 좌우 공백을 위해 40px 뺌
