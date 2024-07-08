@@ -16,20 +16,25 @@ export interface LatLng{
 }
 
 export const Location:FC = () => {
-  const kakao = window.kakao; // kakao 지도 api를 전역으로 사용하기 위해 window 객체에 할당
-  const [locationInfo, setLocationInfo] = useState<Location>({});
-  const [marker, setMarker] = useState<any | null>(new kakao.maps.Marker()); // 마커 객체
+  const [kakao, setKakao] = useState<any | null>(window.kakao);
+  const [locationInfo, setLocationInfo] = useState<Location>(() => {
+    const storedLocationInfo = localStorage.getItem('locationInfo');
+    return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
+  });
+  const [marker, setMarker] = useState<any | null>();
   const [kakaoMap, setKakaoMap] = useState<any | null>(null);
   const [geocoder, setGeocoder] = useState<any | null>(null); 
-  const [latLng, setLatLng] = useState<LatLng>({lat: 37.56100278, lng: 126.9996417});
-
+  const [latLng, setLatLng] = useState<LatLng>(()=>{
+    const storedLatLng = localStorage.getItem('latLng');
+    return storedLatLng ? JSON.parse(storedLatLng) : {lat: 37.56100278, lng: 126.9996417};
+  });
+  
   const containerRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
     const getKakaoMap = async()=>{
       await createKakaoMap();
-      // await getCurrentLocation();
-      // await setCenter();
+      await getCurrentLocation();
     }
     getKakaoMap();
   }, []);
@@ -44,18 +49,36 @@ export const Location:FC = () => {
     if (marker && kakaoMap) {
       marker.setMap(kakaoMap);
     }
-  }, [marker, kakaoMap]);
+  }, [marker]);
+  // 로컬스토리지에 위치정보 저장
+  useEffect(() => {
+    localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
+  }, [locationInfo]);
+  // 로컬스토리지에 좌표정보 저장, 주소정보 갱신
+  useEffect(() => {
+    if (kakaoMap && geocoder) {
+      getAddr();
+    }
+    if(marker){
+      updateMarkerPosition(latLng);
+    }
+    localStorage.setItem('latLng', JSON.stringify(latLng));
+  }, [latLng, kakaoMap, geocoder]);
 
 
   // 카카오 지도 생성
   const createKakaoMap = async() => {
     if (containerRef.current && kakao && kakao.maps) {
       let options = {
-        center: new kakao.maps.LatLng(37.56100278, 126.9996417), // 기본 위치: 서울 중구
+        center: new kakao.maps.LatLng(latLng.lat, latLng.lng), // 기본 위치: 서울 중구
         level: 3, // 지도 확대 레벨
         draggable: false, // 지도 이동 불가
       };
       setKakaoMap(new kakao.maps.Map(containerRef.current, options))
+      
+      // 주소-좌표 변환 객체 생성
+      // 위치 객체 초기화
+      setGeocoder(new kakao.maps.services.Geocoder());
     }
   };
 
@@ -77,7 +100,7 @@ export const Location:FC = () => {
 
     // 마커가 지도 위에 표시되도록 설정
     setMarker(newMarker);
-    // marker.setMap(kakaoMap); 
+    marker.setMap(kakaoMap); 
   }
 
   // 현재 위치를 가져오는 함수
@@ -87,7 +110,11 @@ export const Location:FC = () => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         setLatLng({lat, lng});
-        updateMarkerPosition({ lat, lng });
+        setLocationInfo({ ...locationInfo, numberAddr: '', roadAddr: '', adminAddr: '' });
+        // alert(`현재 위치: ${lat}, ${lng}`);
+        if(kakaoMap){
+          kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
+        }
       });
   }};
 
@@ -101,12 +128,9 @@ export const Location:FC = () => {
   };
 
   // 카카오 현재 위치 적용
-  const setCenter = async() => {
-    // 주소-좌표 변환 객체 생성
-    // 위치 객체 초기화
-    const newGeocoder = new kakao.maps.services.Geocoder();
-    setGeocoder(newGeocoder);
-
+  const getAddr = async() => {
+    if (!geocoder || !kakaoMap) return;
+    
     //좌표로 (법정동) 상세 주소 정보 요청
     const searchDetailAddrFromCoords = (
       coords: kakao.maps.LatLng,
@@ -115,7 +139,7 @@ export const Location:FC = () => {
       geocoder.coord2Address(coords.getLng(), coords.getLat(), callback);
     };
 
-    // 현재 지도 중심좌표로 주소를 검색해서 지도 좌측 상단에 표시
+    // 현재 지도 중심좌표로 주소를 검색
     const searchAddrFromCoords = (
       coords: kakao.maps.LatLng,
       callback: (result: kakao.maps.services.RegionCodeResult[], status: kakao.maps.services.Status) => void
@@ -129,18 +153,25 @@ export const Location:FC = () => {
       result: kakao.maps.services.RegionCodeResult[],
       status: kakao.maps.services.Status
     ) => {
-      if (status === kakao.maps.services.Status.OK) {
-        setLocationInfo({ ...locationInfo, adminAddr: result[0].address.address_name });
+      if (status === kakao.maps.services.Status.OK && result.length > 0 && result[0].address) {
+        setLocationInfo((prevInfo) => ({
+          ...prevInfo,
+          adminAddr: result[0].address.address_name,
+        }));
       }
     };
 
     // 지도의 중심좌표 얻어오기
-    searchAddrFromCoords(map.getCenter(), displayCenterInfo);
+    searchAddrFromCoords(kakaoMap.getCenter(), displayCenterInfo);
 
     // 현재위치의 도로명, 지번 주소
-    searchDetailAddrFromCoords(latLng, function(result:any, status:any){
+    searchDetailAddrFromCoords(new kakao.maps.LatLng(latLng.lat, latLng.lng), (result:any, status:any)=>{
       if (status === kakao.maps.services.Status.OK) {
-        setLocationInfo({... locationInfo, numberAddr: result[0].address.address_name, roadAddr: result[0].road_address.address_name});
+        setLocationInfo((prevInfo) => ({
+          ...prevInfo,
+          numberAddr: result[0].address.address_name,
+          roadAddr: result[0].road_address.address_name,
+        }));
       }
     });
 };
@@ -148,13 +179,13 @@ export const Location:FC = () => {
   return (
     <div className='max-w-3xl mx-auto text-center text-xl size-full relative' >
       <h1 className='py-3 font-bold'>지도에서 내 위치 확인</h1>
-      <div ref={containerRef} style={{ width: '100%', height: '80%' }}></div>
+      <div ref={containerRef} style={{ width: '100%', height: '70%' }}></div>
       <div className='absolute size-full z-10 flex-col flex justify-center items-center px-8' style={{borderRadius: '24px 24px 0 0', backgroundColor: '#fff', height: '200px', bottom:'0', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'}}>
         <div className='text-start text-base' style={{width: '100%'}}>
-          <p className='font-bold'>지명주소</p>
-          <p className='mt-2'>도로명주소</p>
+          <p className='font-bold'>{locationInfo.numberAddr}</p>
+          <p className='mt-2'>{locationInfo.roadAddr}<br />{locationInfo.adminAddr}</p>
         </div>
-        <button className='rounded-full size-4/5 max-h-12 bg-[#D75B22] text-white font-bold text-base mt-8'>
+        <button className='rounded-full size-4/5 max-h-12 bg-customOrange text-white font-bold text-base mt-8'>
           이 위치로 주소 등록
         </button>
       </div>

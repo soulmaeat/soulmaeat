@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const tabs = [
-  { name: 'home', path: '/home' , src: '/img/flowbite_home-solid.png'},
+  { name: 'home', path: '/main' , src: '/img/flowbite_home-solid.png'},
   { name: 'location', path: '/location' , src: '/img/majesticons_map-marker.png'},
   { name: 'mypage', path: '/profile' , src: '/img/Vector.png'}
 ];

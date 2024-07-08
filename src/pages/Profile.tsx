@@ -1,11 +1,9 @@
-// Profile.tsx
-
-import React from 'react';
+import React, { useState } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
+import { useWallet } from '../contexts/WalletContext';
 
-// 상수 데이터 분리
 const keywords = [
   "# 많이 먹어요",
   "# 조용한 분위기를 좋아해요",
@@ -13,14 +11,12 @@ const keywords = [
   "# 사진 찍는 것을 좋아합니다",
 ];
 
-// 프로필 이미지 컴포넌트
 const ProfileImage = () => (
-  <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-200">
-    {/* <img src="/img/profile-image.jpg" alt="프로필 이미지" className="w-full h-full object-cover" /> */}
+  <div className="w-14 h-14 rounded-full overflow-hidden">
+    <img src="/img/profile-image.png" alt="프로필 이미지" className="w-full h-full object-cover" />
   </div>
 );
 
-// 성향 키워드 컴포넌트
 interface KeywordsListProps {
   keywords: string[];
 }
@@ -46,8 +42,10 @@ interface ProfileProps {
 }
 
 const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
-  // 화력 값 0과 100 사이로 정규화
-  // const normalizedFirepower = ((firepower - 36.5) / (100 - 36.5)) * 100;
+  const navigate = useNavigate();
+  const { soulBalance } = useWallet();
+  const [introduction, setIntroduction] = useState('안녕. 나는 건대 사는 돼지파티야. 나는 3인분도 먹을 수...');
+  const [currentFirepower, setCurrentFirepower] = useState(firepower);
 
   return (
     <section className="max-w-3xl mx-auto p-5 min-h-screen">
@@ -70,10 +68,10 @@ const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
       <div className="mt-8 text-gray-600">
         <div className="flex justify-between">
           <h2 className="font-semibold mb-2">소개글</h2>
-          <Link to="#" className="cursor-pointer text-sm underline">수정</Link>
+          <span className="cursor-pointer text-sm underline" onClick={() => navigate('#')}>수정</span>
         </div>
         <div className="bg-gray-100 p-4 rounded-md mb-4">
-          <p className="text-sm">안녕. 나는 건대 사는 돼지파티야. 나는 3인분도 먹을 수...</p>
+          <p className="text-sm">{introduction}</p>
         </div>
       </div>
       
@@ -81,8 +79,8 @@ const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
         <div className="flex justify-between items-end mb-2">
           <h2 className="font-semibold text-gray-500">나의 화력</h2>
           <div className='flex items-end'>
-            <img src="/img/free-icon-campfire.png" alt="화력 이미티콘" className="w-full h-full object-cover" />
-            <p className="text-customOrange text-sm">{`${firepower.toFixed(1)}`}</p>
+            <img src="/img/free-icon-campfire.png" alt="화력 이미지콘" className="w-full h-full object-cover" />
+            <p className="text-customOrange">{`${currentFirepower.toFixed(1)}`}</p>
           </div>
         </div>
         <div className="flex items-center">
@@ -95,11 +93,14 @@ const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
       <div className="flex flex-col mt-8 mb-4 p-4 border border-gray-300 rounded-md">
         <div className="flex justify-between mb-2">
           <h2 className="font-semibold">소울페이</h2>
-          <p className="mb-2 font-semibold">100,000 소울</p>
+          <p className="mb-2 font-semibold">{soulBalance.toLocaleString()} 소울</p>
         </div>
         <div className="self-end">
-          <button className="px-4 py-2 bg-customOrange text-xs text-white font-medium rounded-md focus:outline-none">
-            <Link to="#">충전하기</Link>
+          <button 
+            className="px-4 py-2 bg-customOrange text-sm text-white font-medium rounded-md focus:outline-none"
+            onClick={() => navigate('/charge')}
+          >
+            충전하기
           </button>
         </div>
       </div>
