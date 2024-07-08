@@ -1,6 +1,6 @@
 import '../App.css';
 import { useEffect, useState } from 'react';
-import { kakao } from '../App';
+// import { kakao } from '../App';
 import { ModalInfo } from '../components/Modals';
 // components
 import { Modals } from '../components/Modals';
