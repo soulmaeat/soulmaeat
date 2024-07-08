@@ -23,7 +23,7 @@ const Onboarding: React.FC = () => {
 
   return (
     <section className="max-w-3xl mx-auto p-5">
-      <h2 className="text-[24px] font-bold mt-[32px]">밥 먹는 취향을 선택해주세요</h2>
+      <h2 className="text-[20px] font-bold mt-[32px]">밥 먹는 취향을 선택해주세요</h2>
       <div className='h-[1px] w-[100%] bg-[#aaaaaa] mt-[14px] mb-[52px]'></div>
 
       <div className='mb-[36px]'>
@@ -39,7 +39,7 @@ const Onboarding: React.FC = () => {
         <PreferTab title="음식을 차갑게 먹는 걸 선호해요" onSelect={handleSelectPreference} />
       </div>
 
-      <div className="text-[20px] font-bold mb-[8px]">소개글 작성</div>
+      <div className="text-[18px] font-bold mb-[8px]">소개글 작성</div>
       <textarea
         className='w-full h-[160px] border border-[#D6D6D6] rounded-[12px] p-2'
         placeholder='자신을 간단히 소개해 주세요'></textarea>
@@ -48,7 +48,6 @@ const Onboarding: React.FC = () => {
         onClick={() => navigate('/main')}>
         다음
       </button>
-      //다음버튼 누르면 메인페이지 연결
     </section>
   );
 }
