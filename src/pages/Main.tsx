@@ -1,14 +1,26 @@
-import React from 'react';
+import React,{useState} from 'react';
 import MainList from '../components/MainList';
 import { IoIosArrowDown } from "react-icons/io";
 import { BiPencil } from "react-icons/bi";
-
 import TabBar from '../components/TabBar';
 
-const Main: React.FC = () => {
+interface MainProps {
+  addrInfo: {
+    roadAddr: string;
+    numberAddr: string;
+  };
+}
+
+const Main: React.FC<MainProps> = ({addrInfo}) => {
+  const [currentAddr, setCurrentAddr] = useState(addrInfo.roadAddr);
+
   return (
     <section className="max-w-3xl mx-auto p-5">
-      <div className='flex items-center text-[20px] mb-[12px]'><IoIosArrowDown className='mr-[8px]'/> 장충단로</div>
+      <div className='flex items-center text-[20px] mb-[12px]'><IoIosArrowDown className='mr-[8px]'/>
+       {currentAddr&&
+       currentAddr.split(' ').slice(0, 3).join(' ')}
+       {!currentAddr&&'서울특별시 중구'}
+       </div>
       <div className="w-[74px] h-[27px] mb-[22px] border border-[#DEDEDE] rounded-[16px] flex items-center justify-center">
         모집중 <IoIosArrowDown />
       </div>
