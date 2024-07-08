@@ -3,6 +3,7 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 import Modal from '../components/Modal';
+// 테스트
 
 const Charge: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(5000); // Default to 5000원
