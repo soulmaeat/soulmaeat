@@ -1,6 +1,10 @@
 import {FC} from 'react'
+import { useNavigate } from 'react-router-dom';
+import { Onboarding } from '../Onboarding';
 
 export const SignUp:FC=()=> {
+  const navigate = useNavigate();
+
   return (
     <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col ... space-y-4">
       <div className="w-211 space-y-9">
@@ -55,7 +59,9 @@ export const SignUp:FC=()=> {
           </ul>
         </div>
         <div>
-            <button className="w-full py-1 mb-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full">회원가입</button>
+            <button 
+            onClick={() => navigate('/onboard')}
+            className="w-full py-2 mb-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full">회원가입</button>
         </div>
       </div>
     </section>

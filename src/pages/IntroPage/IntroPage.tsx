@@ -1,9 +1,12 @@
 import { FC, useState } from 'react';
 import { LoginModal } from '../LoginModal';
-// import { useNavigate } from 'react-router-dom';
+import { SignUp } from './SignUp';
+import { useNavigate } from 'react-router-dom';
 
 export const IntroPage: FC = () => {
   const [loginModal, setLoginModal] = useState<boolean>(false);
+  // const [signUp, setSignUp] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   const closeModal = () => {
     setLoginModal(false);
@@ -37,7 +40,9 @@ export const IntroPage: FC = () => {
               로그인
             </button>
             <br />
-            <button className="w-full py-2 my-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full">
+            <button 
+              onClick={() => navigate('/signup')}
+              className="w-full py-2 my-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full">
               회원가입
             </button>
           </div>
