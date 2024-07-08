@@ -1,4 +1,6 @@
 import React from 'react';
+import { RiTimer2Fill } from "react-icons/ri";
+import { IoPeople } from "react-icons/io5";
 
 interface Item {
    id: number;
@@ -36,11 +38,11 @@ const MainList: React.FC = () => {
                      </span>
                   </div>
                   <div className="flex space-x-2 mt-2">
-                     <span className="flex items-center">
-                        <img src="ino_time.png" alt="" className="mr-1" />1h
+                     <span className="flex items-center mr-[12px]">
+                     <RiTimer2Fill color='#D75B22' className='mr-[4px]'/>1h
                      </span>
                      <span className="flex items-center">
-                        <img src="ino_people-sharp.png" alt="" className="mr-1" />3/5
+                     <IoPeople color='#D75B22' className='mr-[4px]'/>3/5
                      </span>
                   </div>
                </div>
