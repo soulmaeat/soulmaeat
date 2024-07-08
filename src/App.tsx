@@ -12,6 +12,7 @@ import { WalletProvider } from './contexts/WalletContext';
 import { Location } from './pages/Location';
 import Main from './pages/Main';
 import Onboarding from './pages/Onboarding';
+import WriteTwo from './pages/WriteTwo';
 
 declare global {
   interface Window {
@@ -49,6 +50,7 @@ function App() {
         { path: '/chargeconfirm', element: <ChargeConfirmation /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
+        { path: '/writetwo', element: <WriteTwo /> },
       ],
     },
   ];
