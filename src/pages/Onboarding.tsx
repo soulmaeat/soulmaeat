@@ -48,6 +48,7 @@ const Onboarding: React.FC = () => {
         onClick={() => navigate('/main')}>
         다음
       </button>
+      //다음버튼 누르면 메인페이지 연결
     </section>
   );
 }
