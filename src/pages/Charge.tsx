@@ -3,7 +3,6 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 import Modal from '../components/Modal';
-// 테스트
 
 const Charge: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(5000); // Default to 5000원
@@ -19,13 +18,6 @@ const Charge: React.FC = () => {
   };
 
   const handlePaymentMethodChange = (method: string) => {
-    if (!selectedAmount) {
-      // 금액을 선택하지 않았을 경우 모달 표시
-      setModalMessage('금액을 선택해야 충전을 진행할 수 있습니다.');
-      setShowModal(true);
-      return;
-    }
-
     if (!privacyAgreement || !purchaseAgreement) {
       // 개인정보 수집 및 이용동의 또는 구매조건 확인에 동의하지 않았을 경우 모달 표시
       setModalMessage('개인정보 수집 및 이용동의와 구매조건 확인에 동의해야 충전이 가능합니다.');
@@ -34,7 +26,7 @@ const Charge: React.FC = () => {
     }
 
     setPaymentMethod(method);
-    navigate('/charge-confirmation', { state: { amount: selectedAmount } }); // 결제완료 페이지로 이동
+    navigate('/chargeconfirm', { state: { amount: selectedAmount } }); // 결제완료 페이지로 이동
   };
 
   const togglePrivacyAgreement = () => {
