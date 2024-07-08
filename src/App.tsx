@@ -5,16 +5,28 @@ import { Layout } from './components/Layout';
 import { IntroPage } from './pages/IntroPage/IntroPage'; // PascalCase로 import
 import Profile from './pages/Profile';
 import { Location } from './pages/Location';
+import Main from './pages/Main';
+import Onboarding from './pages/Onboarding';
+
+declare global {
+  interface Window {
+    kakao: any;
+  }
+}
+
+export const kakao: any = window['kakao'];
 
 const routes = [
   {
     element: <Layout />,
     children: [
+      { path: '/main', element: <Main /> },
       { path: '/detail', element: <Detail /> },
       { path: '/intropage', element: <IntroPage /> },
+      { path: '/onboard', element: <Onboarding /> },
       { path: '/profile', element: <Profile /> },
       { path: '/location', element: <Location /> },
-    ]
+    ],
   },
 ];
 
