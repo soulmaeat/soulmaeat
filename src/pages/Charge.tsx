@@ -27,7 +27,6 @@ const Charge: React.FC = () => {
 
     setPaymentMethod(method);
     navigate('/chargeconfirm', { state: { amount: selectedAmount } }); // 결제완료 페이지로 이동
-  };
 
   const togglePrivacyAgreement = () => {
     setPrivacyAgreement(!privacyAgreement);

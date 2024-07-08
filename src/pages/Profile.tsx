@@ -113,7 +113,6 @@ const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
           )}
         </div>
       </div>
-      
       <div className="relative mt-8">
         <div className="flex justify-between items-end mb-2">
           <h2 className="font-semibold text-gray-500">나의 화력</h2>

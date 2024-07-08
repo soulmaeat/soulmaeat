@@ -19,6 +19,24 @@ declare global {
   }
 }
 
+export const kakao: any = window['kakao'];
+
+const routes = [
+  {
+    element: <Layout />,
+    children: [
+      { path: '/main', element: <Main /> },
+      { path: '/detail', element: <Detail /> },
+      { path: '/intropage', element: <IntroPage /> },
+      { path: '/onboard', element: <Onboarding /> },
+      { path: '/profile', element: <Profile /> },
+      { path: '/Charge', element: <Charge /> },
+      { path: '/charge-confirmation', element: <ChargeConfirmation /> },
+      { path: '/location', element: <Location /> },
+    ],
+  },
+];
+
 function App() {
   const [addrInfo, setAddrInfo] = useState(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
