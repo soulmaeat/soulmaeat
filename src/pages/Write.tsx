@@ -102,7 +102,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
   return (
     <form
     className=' p-5 min-h-screen max-w-3xl mx-auto text-center size-full relative'>
-      <div className="fixed bg-white top-[1.25rem] w-full max-w-3xl">
+      <div className="fixed bg-white pt-[1.25rem] top-0 w-full max-w-3xl">
         <div className="flex items-center mb-[22px]">
             <IoIosArrowBack onClick={()=>{navigate('/')}} className='cursor-pointer' size={35} />
             <h1 className="mx-2">글 작성하기</h1>
