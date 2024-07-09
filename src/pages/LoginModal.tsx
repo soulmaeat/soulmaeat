@@ -1,6 +1,6 @@
 import {FC} from 'react'
 import { useNavigate } from 'react-router-dom';
-import { Main } from '../pages/main';
+import { Main } from './MainPage';
 import axios from '../lib/axiosCreate'
 
 interface LoginModalProps {
