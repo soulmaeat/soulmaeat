@@ -19,6 +19,8 @@ declare global {
   }
 }
 
+export const kakao: any = window['kakao'];
+
 function App() {
   const [addrInfo, setAddrInfo] = useState(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
