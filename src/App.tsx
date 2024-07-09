@@ -12,6 +12,7 @@ import { WalletProvider } from './contexts/WalletContext';
 import { Location } from './pages/Location';
 import Main from './pages/Main';
 import Onboarding from './pages/Onboarding';
+import ActivityList from './pages/ActivityList';
 import WriteTwo from './pages/WriteTwo';
 
 declare global {
@@ -48,6 +49,7 @@ function App() {
         { path: '/profile', element: <Profile /> },
         { path: '/charge', element: <Charge /> },
         { path: '/chargeconfirm', element: <ChargeConfirmation /> },
+        { path: '/activity', element: <ActivityList /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
         { path: '/writetwo', element: <WriteTwo /> },

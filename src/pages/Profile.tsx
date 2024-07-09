@@ -144,7 +144,8 @@ const Profile: React.FC<ProfileProps> = ({ firepower = 36.5 }) => {
         </div>
       </div>
 
-      <div className="flex justify-between mt-8 pb-3 border-b">
+      <div className="flex justify-between items-center mt-8 p-3 border-b"
+        onClick={() => navigate('/activity')}>
         <div className="flex">
           <h2 className="mr-3 font-semibold text-gray-600">활동내역</h2>
           <span className="text-gray-700">7</span>
