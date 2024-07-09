@@ -1,7 +1,6 @@
 import { FC, useState, ChangeEvent, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom';
-import axios from '../../lib/axiosCreate'
-import { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
 // 사용자 정보를 나타내는 인터페이스를 정의
 export interface User {
@@ -21,6 +20,8 @@ export const SignUp: FC = () => {
   const [useridErr, setUseridErr] = useState<boolean>(false)
   const [passwdErr, setPasswdErr] = useState<boolean>(false)
   const [emailErr, setEmailErr] = useState<boolean>(false)
+  const [passwordConfirm, setPasswordConfirm] = useState<string>('')
+  const [passwdMatchErr, setPasswdMatchErr] = useState<boolean>(false)
   const navigate = useNavigate()
 
   const onSubmit = (e: FormEvent<HTMLFormElement>): boolean => {
@@ -56,13 +57,21 @@ export const SignUp: FC = () => {
       setEmailErr(true)
     }
 
+    if (user.passwd !== passwordConfirm) {
+      setPasswdMatchErr(true)
+      return false
+    } else {
+      setPasswdMatchErr(false)
+    }
+
     requestJoin()
     return true;
   }
 
+  const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      const response: AxiosResponse<ResponseUserData> = await axios.post('/api/members', user)
+      const response: AxiosResponse<ResponseUserData> = await axios.post(`${url}/api/register`, user)
       const responseData: ResponseUserData = response.data
 
       if (responseData && responseData.result === 'success') {
@@ -78,6 +87,10 @@ export const SignUp: FC = () => {
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
     setUser({ ...user, [e.target.name]: e.target.value })
+  }
+
+  const onChangePasswordConfirm = (e: ChangeEvent<HTMLInputElement>): void => {
+    setPasswordConfirm(e.target.value)
   }
 
   return (
@@ -98,7 +111,7 @@ export const SignUp: FC = () => {
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {useridErr && <div className="text-red-500 text-left">아이디 형식이 잘못되었습니다.</div>}
+                  {useridErr && <div className="text-red-500 text-left text-base font-normal">아이디 형식이 잘못되었습니다.</div>}
                 </div>
                 <div>
                   <button type="button" className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full">중복확인</button>
@@ -114,17 +127,20 @@ export const SignUp: FC = () => {
                 name="passwd"
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
-              {passwdErr && <div className="text-red-500">비밀번호 형식이 잘못되었습니다.</div>}
               <div className="w-full border-b border-gray-400"></div>
+              {passwdErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
                 type="password"
+                onChange={onChangePasswordConfirm}
+                value={passwordConfirm}
                 placeholder="비밀번호확인"
                 name="passwordConfirm"
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
+              {passwdMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -135,8 +151,8 @@ export const SignUp: FC = () => {
                 name="email"
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
-              {emailErr && <div className="text-red-500">이메일 형식이 잘못되었습니다.</div>}
               <div className="w-full border-b border-gray-400"></div>
+              {emailErr && <div className="text-red-500 text-left text-base font-normal">이메일 형식이 잘못되었습니다.</div>}
             </li>
             <li className="text-xl text-black-300 text-left font-semibold">
               <div className="py-2">생년월일</div>
