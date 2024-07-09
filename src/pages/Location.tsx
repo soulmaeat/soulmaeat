@@ -102,6 +102,7 @@ export const Location:FC = () => {
   // 지도 마커 표시
   const makeMarker = async(map:any)=>{
     if(map){
+      setIsLoading(true);
       const imageSrc = '/img/marker2.svg';// 마커이미지 주소 
       const imageSize = new kakao.maps.Size(60, 60); // 마커 크기
       const imageOption = {offset: new kakao.maps.Point(30, 30)}; // 마커 옵션
@@ -176,12 +177,12 @@ export const Location:FC = () => {
 
   const sendLocation = () => {
     // navigate('/main');
-    location.href = '/main';
+    location.href = '/';
   }
   return (
     <div className='max-w-3xl h-full mx-auto text-center text-xl size-full overflow-hidden' >
       <div className="location_nav p-3 flex w-100 justify-between align-middle">
-      <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
+      <Link to='/' className='inline-block'><IoIosArrowBack size={35} /></Link>
       <h1 className='font-bold flex items-center'>지도에서 내 위치 확인</h1>
       <IoReload className='cursor-pointer' size={32} onClick={reloadHandler} />
       </div>
