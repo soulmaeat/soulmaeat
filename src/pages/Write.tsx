@@ -85,7 +85,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
     className='max-w-3xl mx-auto text-center size-full relative'>
       <div className="fixed bg-white top-0 w-full">
         <div className="location_nav p-3 flex w-100 justify-start align-middle">
-        <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
+        <Link to='/' className='inline-block'><IoIosArrowBack size={35} /></Link>
         <h1 className='flex items-center' >글 작성하기</h1>
         </div>
         <div className='flex flex-col items-center p-4'>
@@ -126,7 +126,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
           <button type='submit' onClick={()=>{
             navigate('/write2', {state: {selectPlace: selectPlace}});
           }}
-          className='w-[90%] px-3 py-2 rounded-full text-white bg-customOrange text-xl font-bold active:bg-[#97441d]'>다음</button>
+          className='fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] bg-[#D75B22] text-white'>다음</button>
         </div>
     </form>
   );
