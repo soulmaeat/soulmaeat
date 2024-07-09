@@ -3,7 +3,11 @@ import { useEffect, useState } from 'react';
 import { kakao } from '../App';
 import { ModalInfo } from '../components/Modals';
 // components
+
+import { useNavigate } from 'react-router-dom';
 import { Modals } from '../components/Modals';
+import { IoHomeOutline } from "react-icons/io5";
+import { IoIosArrowBack } from "react-icons/io";
 
 export const Detail = () => {
   const tendencyArr = ['많이 먹어요', '조용한 분위기를 좋아해요', '편식해요'];
@@ -13,6 +17,8 @@ export const Detail = () => {
   const [modal, setModal] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
   const [joinCount, setJoinCount] = useState<number>(1);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadKakaoMap();
@@ -83,7 +89,21 @@ export const Detail = () => {
       {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
       <section className="relative flex max-w-3xl h-full mx-auto">
         <div className="flex flex-col justify-between relative w-full">
-          <img className="w-full max-h-72" src="/fake_img.png" />
+        <div className="relative">
+      <div className="absolute top-0 left-0 flex space-x-4 p-4">
+        <IoIosArrowBack 
+          onClick={() => { navigate('/') }} 
+          className="cursor-pointer text-white" 
+          size={35} 
+        />
+        <IoHomeOutline 
+          onClick={() => { navigate('/') }} 
+          className="cursor-pointer text-white" 
+          size={35} 
+        />
+      </div>
+      <img className="w-full max-h-72" src="/fake_img.png" alt="fake" />
+    </div>
           <div className="px-2.5 detail_calc pb-[83px]">
             <div className="flex gap-1.5 pt-3">
               <span className="bg-[#E6A88B] rounded-3xl px-2 py-1 text-white text-[13px]">
@@ -93,9 +113,8 @@ export const Detail = () => {
                 미리 결제
               </span>
               <span
-                className={`${
-                  joinCount >= 3 ? `bg-[#ccc]` : `bg-[#63B412]`
-                } rounded-3xl px-2 py-1 text-white text-[13px]`}
+                className={`${joinCount >= 3 ? `bg-[#ccc]` : `bg-[#63B412]`
+                  } rounded-3xl px-2 py-1 text-white text-[13px]`}
               >
                 {joinCount >= 3 ? '모집완료' : '모집중'}
               </span>
@@ -191,9 +210,8 @@ export const Detail = () => {
             </div>
             <button
               onClick={() => setModal((close) => !close)}
-              className={`w-full h-full text-base font-semibold text-white cursor-pointer ${
-                joinCount >= 3 ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#D75B22]'
-              }`}
+              className={`w-full h-full text-base font-semibold text-white cursor-pointer ${joinCount >= 3 ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#D75B22]'
+                }`}
               disabled={joinCount >= 3}
             >
               {joinCount >= 3 ? '모집완료' : '참가하기'}
