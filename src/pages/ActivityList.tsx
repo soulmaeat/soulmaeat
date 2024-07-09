@@ -1,4 +1,4 @@
-import React from 'react';
+// import React from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import MainList from '../components/MainList';
@@ -35,7 +35,7 @@ export default function ActivityList() {
           activities.map((activity, index) => (
             <div key={index}>
               <p className="mb-2 font-semibold text-sm">{activity.date}</p>
-              <MainList content={activity.content} />
+              <MainList/>
             </div>
           ))
         )}
