@@ -48,12 +48,12 @@ const WriteTwo: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
          ></textarea>
          <textarea
-            className='w-full h-[360px] border border-[#D6D6D6] rounded-[12px] p-2 py-3 mb-6'
+            className='w-full h-[340px] border border-[#D6D6D6] rounded-[12px] p-2 py-3 mb-10'
             placeholder='소개글을 입력해 주세요'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
          ></textarea>
-         <div className='mb-7'>
+         <div className='mb-10'>
             <div>선호키워드</div>
             <div className="overflow-x-auto">
                <div className='flex whitespace-nowrap'>
@@ -65,7 +65,7 @@ const WriteTwo: React.FC = () => {
                </div>
             </div>
          </div>
-         <div className="flex justify-center space-x-16">
+         <div className="flex justify-center space-x-24 mb-[120px]">
             <div
                className={`flex justify-center items-center w-[140px] h-[40px] text-[16px] font-bold border rounded-[16px] cursor-pointer transition-all duration-300
                ${selectedPayment === '미리 결제' ? 'bg-[#D75B22] text-white' : 'text-[#D75B22] border-[#D75B22]'}`}
