@@ -21,17 +21,21 @@ declare global {
   }
 }
 
+export const kakao: any = window['kakao'];
+
 function App() {
   const [addrInfo, setAddrInfo] = useState(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
   });
-  
+
   const [latLngInfo, setLatLngInfo] = useState(() => {
     const storedLatLng = localStorage.getItem('latLng');
-    return storedLatLng ? JSON.parse(storedLatLng) : { lat: 37.56100278, lng: 126.9996417 };
+    return storedLatLng
+      ? JSON.parse(storedLatLng)
+      : { lat: 37.56100278, lng: 126.9996417 };
   });
-  
+
   // 디버깅을 위해 useEffect로 localStorage 값 확인
   useEffect(() => {
     console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
@@ -56,7 +60,7 @@ function App() {
       ],
     },
   ];
-  
+
   const router = createBrowserRouter(routes);
   return (
     <WalletProvider>
