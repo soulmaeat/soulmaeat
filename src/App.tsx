@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Detail } from './pages/Detail';
 import { Layout } from './components/Layout';
@@ -15,6 +15,14 @@ import Write from './pages/Write';
 import ActivityList from './pages/ActivityList';
 import WriteTwo from './pages/WriteTwo';
 import MainPage from './pages/MainPage';
+import axios from 'axios';
+
+interface UserInfo {
+  age?: number;
+  email?: string;
+  gender?: string;
+  token?: string | null;
+}
 
 declare global {
   interface Window {
@@ -29,7 +37,6 @@ function App() {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
   });
-
   const [latLngInfo, setLatLngInfo] = useState(() => {
     const storedLatLng = localStorage.getItem('latLng');
     return storedLatLng
@@ -37,11 +44,39 @@ function App() {
       : { lat: 37.56100278, lng: 126.9996417 };
   });
 
+  const [userData, setUserData] = useState(null);
+
   // 디버깅을 위해 useEffect로 localStorage 값 확인
   // useEffect(() => {
   //   console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
   //   console.log('Stored LatLng:', localStorage.getItem('latLng'));
   // }, []);
+
+  useEffect(() => {
+    getUser();
+  }, []);
+
+  const url = import.meta.env.VITE_API_URL;
+  const storedUserInfo = sessionStorage.getItem('userInfo');
+  const token: UserInfo = storedUserInfo
+    ? JSON.parse(storedUserInfo).token
+    : {};
+
+  // 유저 데이터 가져오기
+  const getUser = async () => {
+    try {
+      const res = await axios.get(`${url}/api/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const userData = res.data;
+      setUserData(userData);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   const routes = [
     {

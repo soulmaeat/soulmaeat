@@ -25,7 +25,6 @@ export const Detail = () => {
   }, []);
 
   const loadKakaoMap = () => {
-    const kakao = window['kakao'];
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
