@@ -124,7 +124,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
         </div>
         <div className="fixed bottom-10 btn_cont w-full">
           <button type='submit' onClick={()=>{
-            navigate('/write2', {state: {selectPlace: selectPlace}});
+            navigate('/writetwo', {state: {selectPlace: selectPlace}});
           }}
           className='fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] bg-[#D75B22] text-white'>다음</button>
         </div>
