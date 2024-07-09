@@ -13,7 +13,7 @@ interface MainProps {
   };
 }
 
-const Main: React.FC<MainProps> = ({addrInfo}) => {
+const MainPage: React.FC<MainProps> = ({addrInfo}) => {
   const [currentAddr, setCurrentAddr] = useState(addrInfo.roadAddr);
 
   const navigate = useNavigate();
@@ -46,4 +46,4 @@ const Main: React.FC<MainProps> = ({addrInfo}) => {
   );
 };
 
-export default Main;
+export default MainPage;
