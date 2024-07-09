@@ -107,27 +107,29 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
             <IoIosArrowBack onClick={()=>{navigate('/')}} className='cursor-pointer' size={35} />
             <h1 className="mx-2">글 작성하기</h1>
          </div>
-        <div className='flex flex-col items-center px-4 pt-4'>
+        <div className='flex flex-col items-center'>
           <h2 className='text-start px-1 text-2xl font-bold w-[90%]'>어디서 먹을까요?</h2>
-          <div className="flex justify-between w-[90%] mt-5 items-center relative">
-            <input 
-            onChange={(e)=>changeHandler(e)}
-            onKeyDown={(e)=>{
-              if(e.key === 'Enter'){
-                searchPlaces(e);
-              }
-            }}
-            className='w-[90%] px-2 py-2 text-xl text-left font-thin border-b-gray-500 border-b' type="text" placeholder='음식점 이름' />
-            <IoIosSearch type='button' onClick={searchPlaces} className='ml-2 cursor-pointer' size={35} />
-            <button type='reset' className='absolute left-[82%] text-gray-300'>
-            <IoCloseCircle className='cursor-pointer' size={20}
-              style={{display: displayStatus}}
-              onClick={()=>{
-                setDisplayStatus('none');
+          <div className="flex justify-around w-[96%] mt-5 items-center pr-5">
+            <div className="input_container w-[90%] relative border-b-gray-500 border-b">
+              <input 
+              onChange={(e)=>changeHandler(e)}
+              onKeyDown={(e)=>{
+                if(e.key === 'Enter'){
+                  searchPlaces(e);
+                }
               }}
-              type='reset'
-            />
-            </button>
+              className='px-2 py-2 text-xl text-left font-thin w-full' type="text" placeholder='음식점 이름' />
+              <button type='reset' className='absolute right-0 top-3 text-gray-300'>
+                <IoCloseCircle className='cursor-pointer' size={20}
+                  style={{display: displayStatus}}
+                  onClick={()=>{
+                    setDisplayStatus('none');
+                  }}
+                  type='reset'
+                />
+              </button>
+            </div>
+            <IoIosSearch type='button' onClick={searchPlaces} className='cursor-pointer' size={35} />
           </div>
           <p className='text-sm my-2 pl-10 text-red-500 text-start w-full'>{msg}</p>
         </div>
