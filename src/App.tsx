@@ -1,24 +1,25 @@
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { Detail } from './pages/Detail';
 import { Layout } from './components/Layout';
 import { IntroPage } from './pages/IntroPage/IntroPage'; // PascalCase로 import
 import { SignUp } from './pages/IntroPage/SignUp';
+import { WalletProvider } from './contexts/WalletContext';
+import { Location } from './pages/Location';
 import Profile from './pages/Profile';
 import Charge from './pages/Charge';
 import ChargeConfirmation from './pages/ChargeConfirmation';
-import { WalletProvider } from './contexts/WalletContext';
-import { Location } from './pages/Location';
 import Main from './pages/Main';
 import Onboarding from './pages/Onboarding';
+import Write from './pages/Write';
 
 declare global {
   interface Window {
     kakao: any;
   }
 }
-
+export const kakao = window['kakao'];
 function App() {
   const [addrInfo, setAddrInfo] = useState(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
@@ -31,10 +32,10 @@ function App() {
   });
   
   // 디버깅을 위해 useEffect로 localStorage 값 확인
-  useEffect(() => {
-    console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
-    console.log('Stored LatLng:', localStorage.getItem('latLng'));
-  }, []);
+  // useEffect(() => {
+  //   console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
+  //   console.log('Stored LatLng:', localStorage.getItem('latLng'));
+  // }, []);
 
   const routes = [
     {
@@ -49,6 +50,7 @@ function App() {
         { path: '/charge-confirmation', element: <ChargeConfirmation /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
+        { path: '/write', element: <Write latLngInfo={latLngInfo} /> },
       ],
     },
   ];
