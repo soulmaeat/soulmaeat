@@ -42,7 +42,7 @@ function App() {
     {
       element: <Layout />,
       children: [
-        { path: '/main', element: <Main addrInfo={addrInfo} /> },
+        { path: '/', element: <Main addrInfo={addrInfo} /> },
         { path: '/detail', element: <Detail /> },
         { path: '/intropage', element: <IntroPage /> },
         { path: '/onboard', element: <Onboarding /> },
