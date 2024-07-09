@@ -45,7 +45,7 @@ const Onboarding: React.FC = () => {
         placeholder='자신을 간단히 소개해 주세요'></textarea>
       <button
         className={`fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 ${isButtonEnabled ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`} 
-        onClick={() => navigate('/main')}>
+        onClick={() => navigate('/')}>
         다음
       </button>
     </section>
