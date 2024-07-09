@@ -115,7 +115,7 @@ export const Location:FC = () => {
   
       // 마커가 지도 위에 표시되도록 설정
       setMarker(newMarker);
-      if(isLoading) setIsLoading(false);
+      setIsLoading(false);
     }else{
       console.error('No map found');
     }
@@ -133,7 +133,6 @@ export const Location:FC = () => {
         // alert(`현재 위치: ${lat}, ${lng}`);
         if(kakaoMap){
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
-          setIsLoading(false);
         }
       });
     }else{
@@ -183,10 +182,10 @@ export const Location:FC = () => {
       <h1 className='font-bold flex items-center'>지도에서 내 위치 확인</h1>
       <IoReload className='cursor-pointer' size={32} onClick={reloadHandler} />
       </div>
-      <div className='w-full h-full' style={{overflow: 'hidden'}}>
+      <div className='w-full h-full relative' style={{overflow: 'hidden'}}>
         {isLoading && 
-          <div className='w-full flex justify-center items-center bg-[#00000033]'>
-            <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 40 40" style={{width: '40px', height: '40px'}}>
+          <div className='z-10 size-full absolute flex justify-center bg-[#00000033]'>
+            <svg className="animate-spin h-5 w-5 mt-[20vw]" viewBox="0 0 40 40" style={{width: '40px', height: '40px'}}>
               <AiOutlineLoading className='text-customOrange' size={40}/>
             </svg>
           </div>
