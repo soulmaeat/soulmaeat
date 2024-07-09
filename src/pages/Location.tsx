@@ -56,11 +56,9 @@ export const Location:FC = () => {
   }, [locationInfo]);
   // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
   useEffect(() => {
-    if (kakaoMap && geocoder) {
+    if (kakaoMap && geocoder && marker) {
       getAddr();
       updateMap(latLng);
-    }
-    if(marker){
       updateMarkerPosition(latLng);
     }
     localStorage.setItem('latLng', JSON.stringify(latLng));
@@ -89,7 +87,6 @@ export const Location:FC = () => {
       kakaoMap.setCenter(new kakao.maps.LatLng(latLng.lat, latLng.lng));
     }
   };
-
 
   // 마커 위치 업데이트 함수
   const updateMarkerPosition = (latLng: LatLng) => {
