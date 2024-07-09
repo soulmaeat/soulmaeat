@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
+import Modal from '../components/Modal'
+// 테스트?
 import { ModalInfo, Modals } from '../components/Modals';
 
 const Charge: React.FC = () => {
