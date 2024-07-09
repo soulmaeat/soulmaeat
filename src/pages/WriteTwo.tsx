@@ -86,7 +86,7 @@ const WriteTwo: React.FC = () => {
             className={`fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
             ${isButtonActive ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`}
             onClick={() => {
-               if (isButtonActive) navigate('/main');
+               if (isButtonActive) navigate('/');
             }}>
             다음
          </button>
