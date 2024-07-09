@@ -104,7 +104,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
     className='max-w-3xl mx-auto text-center size-full relative'>
       <div className="fixed bg-white top-0 w-full max-w-3xl">
         <div className="location_nav p-3 flex w-100 justify-start align-middle">
-        <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
+        <Link to='/' className='inline-block'><IoIosArrowBack size={35} /></Link>
         <h1 className='flex items-center' >글 작성하기</h1>
         </div>
         <div className='flex flex-col items-center p-4'>

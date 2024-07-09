@@ -1,6 +1,7 @@
 import React from 'react';
 import { RiTimer2Fill } from "react-icons/ri";
 import { IoPeople } from "react-icons/io5";
+import { useNavigate } from 'react-router-dom';
 
 interface Item {
    id: number;
@@ -20,8 +21,12 @@ const MainList: React.FC = () => {
       // 추가 항목들을 여기에 추가할 수 있습니다.
    ];
 
+   const navigate = useNavigate();
+
    return (
-      <div className="bg-[#F5F5F5] border border-[#DEDEDE] rounded-[13px] p-5  mb-3.5 h-[120px]">
+      <div className="bg-[#F5F5F5] border border-[#DEDEDE] rounded-[13px] p-5  mb-3.5 h-[120px]"
+         // onClick={() => navigate(`/detail/${item.id}`)}>
+         onClick={() => navigate(`/detail`)}>
          {items.map((item) => (
             <div key={item.id} className="flex py-4 first:pt-0 last:pb-0">
                <div className="ml-3 overflow-hidden">
