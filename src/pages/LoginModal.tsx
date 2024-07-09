@@ -1,6 +1,7 @@
 import {FC} from 'react'
 import { useNavigate } from 'react-router-dom';
-import { Main } from '../main';
+import { Main } from '../pages/main';
+import axios from '../lib/axiosCreate'
 
 interface LoginModalProps {
   closeModal: () => void;
@@ -17,11 +18,11 @@ export const LoginModal:FC<LoginModalProps>=({ closeModal })=> {
         <dl>
           <dt className="text-2xl text-black-500 text-left font-semibold py-3">로그인</dt>
               <dd>
-                  <input type="text" value="아이디" name="userid" className="w-full px-1 py-2 text-xl text-gray-300 text-left font-semibold"></input>
+                  <input type="text" placeholder="아이디" name="userid" className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"></input>
                   <div className="w-full border-b border-gray-400"></div>
               </dd>
               <dd>
-                  <input type="text" value="비밀번호" name="password" className="w-full px-1 py-2 text-xl text-gray-300 text-left font-semibold"></input>
+              <input type="text" placeholder="비밀번호" name="password" className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"></input>
                   <div className="w-full border-b border-gray-400"></div>
               </dd>
               <dd className="text-right text-l  text-gray-700 py-1">
