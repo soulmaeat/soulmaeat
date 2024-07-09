@@ -13,24 +13,30 @@ import ChargeConfirmation from './pages/ChargeConfirmation';
 import Main from './pages/Main';
 import Onboarding from './pages/Onboarding';
 import Write from './pages/Write';
+import ActivityList from './pages/ActivityList';
+import WriteTwo from './pages/WriteTwo';
 
 declare global {
   interface Window {
     kakao: any;
   }
 }
-export const kakao = window['kakao'];
+
+export const kakao: any = window['kakao'];
+
 function App() {
   const [addrInfo, setAddrInfo] = useState(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
   });
-  
+
   const [latLngInfo, setLatLngInfo] = useState(() => {
     const storedLatLng = localStorage.getItem('latLng');
-    return storedLatLng ? JSON.parse(storedLatLng) : { lat: 37.56100278, lng: 126.9996417 };
+    return storedLatLng
+      ? JSON.parse(storedLatLng)
+      : { lat: 37.56100278, lng: 126.9996417 };
   });
-  
+
   // 디버깅을 위해 useEffect로 localStorage 값 확인
   // useEffect(() => {
   //   console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
@@ -46,15 +52,17 @@ function App() {
         { path: '/intropage', element: <IntroPage /> },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile /> },
-        { path: '/Charge', element: <Charge /> },
-        { path: '/charge-confirmation', element: <ChargeConfirmation /> },
+        { path: '/charge', element: <Charge /> },
+        { path: '/chargeconfirm', element: <ChargeConfirmation /> },
+        { path: '/activity', element: <ActivityList /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
         { path: '/write', element: <Write latLngInfo={latLngInfo} /> },
+        { path: '/writetwo', element: <WriteTwo /> },
       ],
     },
   ];
-  
+
   const router = createBrowserRouter(routes);
   return (
     <WalletProvider>

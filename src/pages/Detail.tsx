@@ -11,12 +11,15 @@ export const Detail = () => {
 
   const [kakaoMap, setKakaoMap] = useState<any>(null);
   const [modal, setModal] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<boolean>(false);
+  const [joinCount, setJoinCount] = useState<number>(1);
 
   useEffect(() => {
     loadKakaoMap();
   }, []);
 
   const loadKakaoMap = () => {
+    const kakao = window['kakao'];
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
@@ -41,27 +44,47 @@ export const Detail = () => {
     }
   };
 
+  const onClickConfirmModal = () => {
+    setConfirmModal(true);
+  };
+
+  const joinCounter = () => {
+    setJoinCount(joinCount + 1);
+  };
+
   const JoinModalInfo: ModalInfo = {
     userName: '돼지력만랩',
     content: '님과 같이 먹을래요?',
     payment: 22000,
     balance: 11000,
-    btntext: '참가하기',
+    rbtntext: '참가하기',
+    lbtntext: '취소',
     lonclick: () => {
-      setModal((close) => !close);
+      setModal(false);
     },
     ronclick: () => {
-      setModal((close) => !close);
+      setModal(false);
+      onClickConfirmModal();
+    },
+  };
+
+  const ConfirmModalInfo: ModalInfo = {
+    content: '참가 및 결제가 완료되었습니다.',
+    rbtntext: '확인',
+    ronclick: () => {
+      setConfirmModal(false);
+      joinCounter();
     },
   };
 
   return (
     <>
       {modal ? <Modals info={JoinModalInfo} /> : null}
-      <section className="relative flex w-full h-full">
-        <div>
+      {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
+      <section className="relative flex max-w-3xl h-full mx-auto">
+        <div className="flex flex-col justify-between relative w-full">
           <img className="w-full max-h-72" src="/fake_img.png" />
-          <div className="max-w-3xl mx-auto px-2.5 detail_calc">
+          <div className="px-2.5 detail_calc pb-[83px]">
             <div className="flex gap-1.5 pt-3">
               <span className="bg-[#E6A88B] rounded-3xl px-2 py-1 text-white text-[13px]">
                 <span className="text-[#D75B22] font-semibold">19시</span> 마감
@@ -69,8 +92,12 @@ export const Detail = () => {
               <span className="bg-[#E6A88B] rounded-3xl px-2 py-1 text-white text-[13px]">
                 미리 결제
               </span>
-              <span className="bg-[#63B412] rounded-3xl px-2 py-1 text-white text-[13px]">
-                모집중
+              <span
+                className={`${
+                  joinCount >= 3 ? `bg-[#ccc]` : `bg-[#63B412]`
+                } rounded-3xl px-2 py-1 text-white text-[13px]`}
+              >
+                {joinCount >= 3 ? '모집완료' : '모집중'}
               </span>
             </div>
             <div className="flex justify-between py-3 border-b border-[#ededed]">
@@ -138,32 +165,42 @@ export const Detail = () => {
                     src="/img/location_icon.png"
                     alt="위치 정보 아이콘"
                   />
-                  <div>
+                  <div className="mb-3">
                     <p>서울 종로구 종로54길 17-10 1층</p>
                     <p>동묘앞역 6번 출구에서 188m</p>
                   </div>
                 </div>
-                <div id="map" style={{ width: '100%', height: '400px' }}></div>
+                <div
+                  id="map"
+                  style={{
+                    width: '100%',
+                    height: '250px',
+                    borderRadius: '10px',
+                  }}
+                ></div>
               </div>
             </div>
           </div>
+          <nav className="fixed bottom-0 flex w-full max-w-3xl h-16 border-t bg-white z-20">
+            <div className="flex w-1/4 items-center justify-center">
+              <img
+                className="w-8 h-7 cursor-pointer"
+                src="/img/zzim_icon.png"
+                alt="찜하기"
+              />
+            </div>
+            <button
+              onClick={() => setModal((close) => !close)}
+              className={`w-full h-full text-base font-semibold text-white cursor-pointer ${
+                joinCount >= 3 ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#D75B22]'
+              }`}
+              disabled={joinCount >= 3}
+            >
+              {joinCount >= 3 ? '모집완료' : '참가하기'}
+              <span className="ml-2.5">{joinCount} / 3</span>
+            </button>
+          </nav>
         </div>
-        <nav className="fixed bottom-0 flex w-full h-16 border-t bg-white">
-          <div className="flex w-1/4 items-center justify-center">
-            <img
-              className="w-8 h-7 cursor-pointer"
-              src="/img/zzim_icon.png"
-              alt="찜하기"
-            />
-          </div>
-          <button
-            onClick={() => setModal((close) => !close)}
-            className="bg-[#D75B22] w-full h-full text-base font-semibold text-white cursor-pointer"
-          >
-            참가하기
-            <span className="ml-2.5">1 / 3</span>
-          </button>
-        </nav>
       </section>
     </>
   );

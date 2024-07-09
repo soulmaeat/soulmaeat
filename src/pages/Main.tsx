@@ -4,6 +4,7 @@ import MainList from '../components/MainList';
 import { IoIosArrowDown } from "react-icons/io";
 import { BiPencil } from "react-icons/bi";
 import TabBar from '../components/TabBar';
+import { useNavigate } from 'react-router-dom';
 
 interface MainProps {
   addrInfo: {
@@ -15,6 +16,7 @@ interface MainProps {
 const Main: React.FC<MainProps> = ({addrInfo}) => {
   const [currentAddr, setCurrentAddr] = useState(addrInfo.roadAddr);
 
+  const navigate = useNavigate();
   return (
     <section className="max-w-3xl mx-auto p-5">
       <div className='flex items-center text-[20px] mb-[12px]'><IoIosArrowDown className='mr-[8px]'/>
@@ -34,11 +36,11 @@ const Main: React.FC<MainProps> = ({addrInfo}) => {
         <MainList />
         <MainList />
       </div>
-      <span className="fixed bottom-[120px] right-5 w-[50px] h-[50px] bg-[#D75B22] text-white flex items-center justify-center rounded-[50%] cursor-pointer">
+      <button className="fixed bottom-[120px] right-5 w-[50px] h-[50px] bg-[#D75B22] text-white flex items-center justify-center rounded-[50%] cursor-pointer">
         <Link to='/write'>
           <BiPencil className='w-6 h-6'/>
         </Link>
-      </span>
+      </button>
       <TabBar/>
     </section>
   );
