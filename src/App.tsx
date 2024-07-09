@@ -5,16 +5,16 @@ import { Detail } from './pages/Detail';
 import { Layout } from './components/Layout';
 import { IntroPage } from './pages/IntroPage/IntroPage'; // PascalCase로 import
 import { SignUp } from './pages/IntroPage/SignUp';
-import { WalletProvider } from './contexts/WalletContext';
-import { Location } from './pages/Location';
 import Profile from './pages/Profile';
 import Charge from './pages/Charge';
 import ChargeConfirmation from './pages/ChargeConfirmation';
-import Main from './pages/Main';
+import { WalletProvider } from './contexts/WalletContext';
+import { Location } from './pages/Location';
 import Onboarding from './pages/Onboarding';
 import Write from './pages/Write';
 import ActivityList from './pages/ActivityList';
 import WriteTwo from './pages/WriteTwo';
+import MainPage from './pages/MainPage';
 
 declare global {
   interface Window {
@@ -47,7 +47,7 @@ function App() {
     {
       element: <Layout />,
       children: [
-        { path: '/main', element: <Main addrInfo={addrInfo} /> },
+        { path: '/', element: <MainPage addrInfo={addrInfo} /> },
         { path: '/detail', element: <Detail /> },
         { path: '/intropage', element: <IntroPage /> },
         { path: '/onboard', element: <Onboarding /> },

@@ -101,13 +101,13 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
 
   return (
     <form
-    className='max-w-3xl mx-auto text-center size-full relative'>
-      <div className="fixed bg-white top-0 w-full max-w-3xl">
-        <div className="location_nav p-3 flex w-100 justify-start align-middle">
-        <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
-        <h1 className='flex items-center' >글 작성하기</h1>
-        </div>
-        <div className='flex flex-col items-center p-4'>
+    className=' p-5 min-h-screen max-w-3xl mx-auto text-center size-full relative'>
+      <div className="fixed bg-white top-[1.25rem] w-full max-w-3xl">
+        <div className="flex items-center mb-[22px]">
+            <IoIosArrowBack onClick={()=>{navigate('/')}} className='cursor-pointer' size={35} />
+            <h1 className="mx-2">글 작성하기</h1>
+         </div>
+        <div className='flex flex-col items-center px-4 pt-4'>
           <h2 className='text-start px-1 text-2xl font-bold w-[90%]'>어디서 먹을까요?</h2>
           <div className="flex justify-between w-[90%] mt-5 items-center relative">
             <input 
@@ -129,7 +129,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
             />
             </button>
           </div>
-          <p className='text-sm text-red-500'>{msg}</p>
+          <p className='text-sm my-2 pl-10 text-red-500 text-start w-full'>{msg}</p>
         </div>
       </div>
         <div className='mt-[208px] size-full flex flex-col items-center'>
