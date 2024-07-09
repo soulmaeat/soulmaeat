@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
+import axios from '../lib/axiosCreate';
 
 const WriteTwo: React.FC = () => {
    const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -12,6 +13,7 @@ const WriteTwo: React.FC = () => {
    const navigate = useNavigate();
    const location = useLocation();
    const { selectPlace } = location.state || {};
+
 
    useEffect(() => {
       if (title && description && selectedPayment) {
@@ -74,31 +76,81 @@ const WriteTwo: React.FC = () => {
                </div>
             </div>
          </div>
-         <div className="flex justify-center space-x-24 mb-[120px]">
+         <div className="flex justify-center space-x-24 mb-10">
             <div
                className={`flex justify-center items-center w-[140px] h-[40px] text-[16px] font-bold border rounded-[16px] cursor-pointer transition-all duration-300
                ${selectedPayment === '미리 결제' ? 'bg-[#D75B22] text-white' : 'text-[#D75B22] border-[#D75B22]'}`}
-               onClick={() => handleSelectPayment('미리 결제')}
-            >
+               onClick={() => handleSelectPayment('미리 결제')}>
                미리 결제
             </div>
             <div
                className={`flex justify-center items-center w-[140px] h-[40px] text-[16px] font-bold border rounded-[16px] cursor-pointer transition-all duration-300
                ${selectedPayment === '만나서 결제' ? 'bg-[#D75B22] text-white' : 'text-[#D75B22] border-[#D75B22]'}`}
-               onClick={() => handleSelectPayment('만나서 결제')}
-            >
+               onClick={() => handleSelectPayment('만나서 결제')}>
                만나서 결제
             </div>
          </div>
+         {selectedPayment==='미리 결제'&&
+         <div className="mb-20 w-full flex-col items-center  max-w-xl">
+            <div className='px-4 w-full'>
+               <h2 className='text-xl font-bold'>모바일 영수증</h2>
+               <p className='border-b border-black pb-4'>정확한 가격을 기재해주세요.</p>
+            </div>
+            <div className='mb-2 mt-3 px-4'>
+               {/* <p className='text-gray-400 text-center'>예) 로제파스타 | 12,000원 | 1개</p> */}
+               <div className='flex justify-between font-bold mt-3'>
+                  <p>상품명</p>
+                  <p>가격</p>
+                  <p>수량</p>
+                  <p>총액</p>
+               </div>
+               <ul className='border-b border-black pb-3'>
+                  {
+                  <>
+                     <li className='flex justify-between mt-3'>
+                        <p>로제파스타</p>
+                        <p><span>12,000</span>원</p>
+                        <p>2</p>
+                        <p><span>24,000</span>원</p>
+                     </li>
+                     <li className='flex justify-between mt-3'>
+                        <p>크림리조또</p>
+                        <p><span>9,000</span>원</p>
+                        <p>3</p>
+                        <p><span>27,000</span>원</p>
+                     </li>
+                  </>
+                  }
+               </ul>
+            </div>
+            <div className='px-4'>
+               <h3 className='font-[600] text-lg text-end'>총 합계</h3>
+               <p className='text-end'>51,000원</p>
+            </div>
+            <div className='w-full flex justify-between items-center mt-4 shrink-0 px-4'>
+               <input className='h-10 w-[30%] px-1 rounded-xl bg-gray-100 text-center'
+               type="text" placeholder='상품명' />
+               <input className='h-10 w-[20%] px-1 rounded-xl bg-gray-100 text-center'
+               type="number" placeholder='가격' />
+               <input className='h-10 w-[14%] px-1 rounded-xl bg-gray-100 text-center'
+               type="number" placeholder='수량' />
+               
+               <p className='inline-block'><span>총액</span>원</p>
+               <button className='block rounded-[40px] whitespace-nowrap bg-customOrange text-white w-[43px] h-[32px]'>추가</button>
+            </div>
 
-         <button
-            className={`fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
-            ${isButtonActive ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`}
-            onClick={() => {
-               if (isButtonActive) navigate('/detail', { state: { title, description, selectedKeywords, selectedPayment, selectPlace } });
-            }}>
-            다음
-         </button>
+         </div>
+         }
+         <div className='mb-[56px] w-full text-center'>
+            <button
+               className={` left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
+               ${isButtonActive ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`}
+               onClick={() => {
+                  if (isButtonActive) navigate('/detail');
+               }}>
+               다음
+            </button>
+         </div>
       </section>
    )
 }

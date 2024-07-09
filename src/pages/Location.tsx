@@ -3,6 +3,7 @@ import {Link} from 'react-router-dom';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoReload } from "react-icons/io5";
 import { AiOutlineLoading } from "react-icons/ai";
+import { Badge } from '../components/Badge';
 
 interface Location{
   numberAddr?: string;
@@ -17,17 +18,20 @@ interface LatLng{
 export const Location:FC = () => {
   const kakao = window['kakao'];
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [marker, setMarker] = useState<any | null>(null);
+  const [kakaoMap, setKakaoMap] = useState<any | null>(null);
+  const [geocoder, setGeocoder] = useState<any | null>(null); 
   const [locationInfo, setLocationInfo] = useState<Location>(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
   });
-  const [marker, setMarker] = useState<any | null>(null);
-  const [kakaoMap, setKakaoMap] = useState<any | null>(null);
-  const [geocoder, setGeocoder] = useState<any | null>(null); 
   const [latLng, setLatLng] = useState<LatLng>(()=>{
     const storedLatLng = localStorage.getItem('latLng');
     return storedLatLng ? JSON.parse(storedLatLng) : {lat: 37.56100278, lng: 126.9996417};
   });
+  const badgeNum = '지번',
+        badgeRoad = '도로명',
+        badgeAdmin = '행정동';
   
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -115,7 +119,7 @@ export const Location:FC = () => {
   
       // 마커가 지도 위에 표시되도록 설정
       setMarker(newMarker);
-      setIsLoading(false);
+      if(isLoading) setIsLoading(false);
     }else{
       console.error('No map found');
     }
@@ -133,6 +137,7 @@ export const Location:FC = () => {
         // alert(`현재 위치: ${lat}, ${lng}`);
         if(kakaoMap){
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
+          setIsLoading(false);
         }
       });
     }else{
@@ -160,10 +165,12 @@ export const Location:FC = () => {
     // 현재위치의 도로명, 지번 주소
     searchDetailAddrFromCoords(new kakao.maps.LatLng(latLng.lat, latLng.lng), (result:any, status:any)=>{
       if (status === kakao.maps.services.Status.OK && result.length > 0) {
+        const numberAddr = result[0].address?.address_name ?? '';
+        const roadAddr = result[0].road_address?.address_name ?? '';
         setLocationInfo((prevInfo) => ({
           ...prevInfo,
-          numberAddr: result[0].address.address_name,
-          roadAddr: result[0].road_address.address_name,
+          numberAddr: numberAddr,
+          roadAddr: roadAddr,
         }));
     }});
 };
@@ -194,8 +201,44 @@ export const Location:FC = () => {
       </div>
       <div className='absolute max-w-3xl size-full z-10 flex-col flex justify-center items-center px-8' style={{borderRadius: '24px 24px 0 0', backgroundColor: '#fff', height: '200px', bottom:'0', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'}}>
         <div className='text-start text-base' style={{width: '100%'}}>
-          <p className='font-bold'>{locationInfo.numberAddr}</p>
-          <p className='mt-2'>{locationInfo.roadAddr}</p>
+          {locationInfo.numberAddr&&
+           // 지명이 있으면 지명으로, 없으면 도로명으로(굵게) 출력
+           <div className='flex'>
+            <Badge props={badgeNum} />
+            <p className='font-bold ml-2'>{locationInfo.numberAddr}</p>
+           </div>
+          }
+          {(!locationInfo.numberAddr&&locationInfo.roadAddr)&&
+           <div className='flex'>
+             <Badge props={badgeRoad} />
+             <p className='font-bold ml-2'>{locationInfo.roadAddr}</p>
+           </div>
+          }
+          {(locationInfo.roadAddr&&locationInfo.adminAddr)||(!locationInfo.adminAddr&&locationInfo.roadAddr)&&
+            // 도로명이 있으면 도로명으로, 없으면 행정동으로 출력 (부가 주소)
+           <div className='flex'>
+             <Badge props={badgeRoad} />
+             <p className='mt-2 ml-2'>{locationInfo.roadAddr}</p>
+           </div>
+          }
+          {!locationInfo.roadAddr&&locationInfo.adminAddr&&
+           <div className='flex'>
+             <Badge props={badgeAdmin} />
+             <p className='mt-2 ml-2'>{locationInfo.adminAddr}</p>
+           </div>
+          }
+          {!locationInfo.roadAddr&&!locationInfo.adminAddr&&locationInfo.numberAddr&&
+            <p className='mt-2'>도로명이 검색되지 않습니다.</p>
+          }
+          {locationInfo.roadAddr&&!locationInfo.adminAddr&&!locationInfo.numberAddr&&
+            <p className='mt-2'>지번이 검색되지 않습니다.</p>
+          }
+          {!locationInfo.roadAddr&&!locationInfo.adminAddr&&!locationInfo.numberAddr&&
+          <>
+            <p className='font-bold'>주소가 검색되지 않습니다.</p>
+            <p className='mt-2'>인터넷 연결 또는 위치 허용을 확인해주세요.</p>
+          </>
+          }
         </div>
         <button 
         className='rounded-full size-4/5 max-h-12 bg-customOrange text-white font-bold text-base mt-8'

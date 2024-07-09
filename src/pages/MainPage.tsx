@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useEffect, useState} from 'react';
 import { Link } from 'react-router-dom';
 import MainList from '../components/MainList';
 import { IoIosArrowDown } from "react-icons/io";
@@ -13,15 +13,19 @@ interface MainProps {
 }
 
 const MainPage: React.FC<MainProps> = ({addrInfo}) => {
-  const [currentAddr, setCurrentAddr] = useState(addrInfo.roadAddr);
+  const [currentAddr, setCurrentAddr] = useState(addrInfo);
 
-  
   return (
     <section className="max-w-3xl mx-auto p-5">
       <div className='flex items-center text-[20px] mb-[12px]'><IoIosArrowDown className='mr-[8px]'/>
-       {currentAddr&&
-       currentAddr.split(' ').slice(0, 3).join(' ')}
-       {!currentAddr&&'서울특별시 중구'}
+       {currentAddr.numberAddr&&currentAddr.roadAddr&&
+       currentAddr.numberAddr.split(' ').slice(0, 3).join(' ')}
+       {currentAddr.numberAddr&&!currentAddr.roadAddr&&
+       currentAddr.numberAddr.split(' ').slice(0, 3).join(' ')}
+       {!currentAddr.numberAddr&&currentAddr.roadAddr&&
+        currentAddr.roadAddr.split(' ').slice(0, 3).join(' ')
+       }
+       {!currentAddr.numberAddr&&!currentAddr.roadAddr&&'서울특별시 중구'}
        </div>
       <div className="w-[74px] h-[27px] mb-[22px] border border-[#DEDEDE] rounded-[16px] flex items-center justify-center">
         모집중 <IoIosArrowDown />
