@@ -1,7 +1,7 @@
 import { FC, useState, useRef, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-// import { Main } from '../main';
 import axios from 'axios';
+import { Main } from './MainPage';
 
 interface LoginModalProps {
   closeModal: () => void;

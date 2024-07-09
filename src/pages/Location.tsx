@@ -1,7 +1,8 @@
-import {FC, useState, useRef, useEffect} from 'react'
-import {Link, useNavigate} from 'react-router-dom'
+import {FC, useState, useRef, useEffect} from 'react';
+import {Link} from 'react-router-dom';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoReload } from "react-icons/io5";
+import { AiOutlineLoading } from "react-icons/ai";
 
 interface Location{
   numberAddr?: string;
@@ -15,6 +16,7 @@ interface LatLng{
 
 export const Location:FC = () => {
   const kakao = window['kakao'];
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [locationInfo, setLocationInfo] = useState<Location>(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
@@ -28,7 +30,6 @@ export const Location:FC = () => {
   });
   
   const containerRef = useRef<HTMLDivElement>(null);
-  const navigate = useNavigate();
   
   useEffect(() => {
     const getKakaoMap = async()=>{
@@ -55,11 +56,9 @@ export const Location:FC = () => {
   }, [locationInfo]);
   // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
   useEffect(() => {
-    if (kakaoMap && geocoder) {
+    if (kakaoMap && geocoder && marker) {
       getAddr();
       updateMap(latLng);
-    }
-    if(marker){
       updateMarkerPosition(latLng);
     }
     localStorage.setItem('latLng', JSON.stringify(latLng));
@@ -89,7 +88,6 @@ export const Location:FC = () => {
     }
   };
 
-
   // 마커 위치 업데이트 함수
   const updateMarkerPosition = (latLng: LatLng) => {
     if (marker) {
@@ -101,6 +99,7 @@ export const Location:FC = () => {
   // 지도 마커 표시
   const makeMarker = async(map:any)=>{
     if(map){
+      setIsLoading(true);
       const imageSrc = '/img/marker2.svg';// 마커이미지 주소 
       const imageSize = new kakao.maps.Size(60, 60); // 마커 크기
       const imageOption = {offset: new kakao.maps.Point(30, 30)}; // 마커 옵션
@@ -116,7 +115,7 @@ export const Location:FC = () => {
   
       // 마커가 지도 위에 표시되도록 설정
       setMarker(newMarker);
-      // marker.setMap(kakaoMap); 
+      if(isLoading) setIsLoading(false);
     }else{
       console.error('No map found');
     }
@@ -124,6 +123,7 @@ export const Location:FC = () => {
 
   // 현재 위치를 가져오는 함수
   const getCurrentLocation = async() => {
+    setIsLoading(true);
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position:GeolocationPosition) => {
         const lat = position.coords.latitude;
@@ -133,9 +133,18 @@ export const Location:FC = () => {
         // alert(`현재 위치: ${lat}, ${lng}`);
         if(kakaoMap){
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
+          setIsLoading(false);
         }
       });
-  }};
+    }else{
+      setTimeout(() => {
+        if(isLoading&&!locationInfo&&!latLng){ 
+          setIsLoading(false);
+          alert('위치 정보를 가져오지 못했습니다. 다시 시도해주세요.');
+        }
+      }, 10000);
+  }
+};
 
   // 카카오 현재 위치 적용
   const getAddr = async() => {
@@ -165,17 +174,26 @@ export const Location:FC = () => {
 
   const sendLocation = () => {
     // navigate('/main');
-    location.href = '/main';
+    location.href = '/';
   }
   return (
-    <div className='max-w-3xl mx-auto text-center text-xl size-full relative' >
+    <div className='max-w-3xl h-full mx-auto text-center text-xl size-full overflow-hidden' >
       <div className="location_nav p-3 flex w-100 justify-between align-middle">
-      <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
+      <Link to='/' className='inline-block'><IoIosArrowBack size={35} /></Link>
       <h1 className='font-bold flex items-center'>지도에서 내 위치 확인</h1>
       <IoReload className='cursor-pointer' size={32} onClick={reloadHandler} />
       </div>
-      <div ref={containerRef} style={{ width: '100%', height: '70%' }}></div>
-      <div className='absolute size-full z-10 flex-col flex justify-center items-center px-8' style={{borderRadius: '24px 24px 0 0', backgroundColor: '#fff', height: '200px', bottom:'0', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'}}>
+      <div className='w-full h-full' style={{overflow: 'hidden'}}>
+        {isLoading && 
+          <div className='w-full flex justify-center items-center bg-[#00000033]'>
+            <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 40 40" style={{width: '40px', height: '40px'}}>
+              <AiOutlineLoading className='text-customOrange' size={40}/>
+            </svg>
+          </div>
+        }
+        <div ref={containerRef} style={{ width: '100%', height: '70%' }}></div>
+      </div>
+      <div className='absolute max-w-3xl size-full z-10 flex-col flex justify-center items-center px-8' style={{borderRadius: '24px 24px 0 0', backgroundColor: '#fff', height: '200px', bottom:'0', boxShadow: '0 0 10px rgba(0, 0, 0, 0.3)'}}>
         <div className='text-start text-base' style={{width: '100%'}}>
           <p className='font-bold'>{locationInfo.numberAddr}</p>
           <p className='mt-2'>{locationInfo.roadAddr}</p>

@@ -19,7 +19,7 @@ const PreferTab: React.FC<PreferTabProps> = ({ title, onSelect }) => {
 
   return (
     <div
-      className={`inline-block items-center text-[20px] px-2 py-0.5 rounded-[12px] mb-[20px] mr-4 font-bold cursor-pointer transition-all duration-300 
+      className={`inline-block items-center text-[16px] px-2 py-0.5 rounded-[12px] mb-[20px] mr-4 font-bold cursor-pointer transition-all duration-300 
                   ${isActive ? 'bg-[#FFEFE8] text-[#D75B22] border-[#D75B22]' : 'border-[#888888] text-[#888888]'}`}
       style={{ borderWidth: '1px' }}
       onClick={handleClick}
