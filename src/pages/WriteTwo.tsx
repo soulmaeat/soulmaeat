@@ -7,21 +7,22 @@ import { UserData } from '../App';
 import axios from 'axios';
 
 
-interface DetailData { 
-   userId: any | null;
-   title: string;
-   description: string;
-   selectedKeywords: string[];
-   selectedPayment: string | null;
-   joinedPeople: number;
-   placeName: string | undefined;
-   placeCategory: string | undefined;
-   placePhone: string | undefined;
-   placeUrl: string | undefined;
-   placeAddr: string | undefined;
-   placeRoadAddr: string | undefined;
-   lat: number;
-   lng: number;
+interface DetailData {
+  postId: number;
+  author: any | null;
+  title: string;
+  description: string;
+  selectedKeywords: string[];
+  selectedPayment: string | null;
+  joinedPeople: number;
+  placeName: string | undefined;
+  placeCategory: string | undefined;
+  placePhone: string | undefined;
+  placeUrl: string | undefined;
+  placeAddr: string | undefined;
+  placeRoadAddr: string | undefined;
+  x: number;
+  y: number;
 }
 
 interface BillsProps {
@@ -45,6 +46,7 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    const [joinedPeople, setJoinedPeople] = useState<number>(1);
    const navigate = useNavigate();
    const location = useLocation();
+   const [postId, setPostId] = useState<number>(0);
    const { selectPlace } = location.state || {};
    // 모바일 영수증이 식당 값이 바뀌지 않는 이상, localstorage에 저장해두고,
    // 실수로 새로고침을 해도 값이 유지되도록 하기
@@ -70,32 +72,33 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    },[selectPlace])
 
    const sendDetailInfo = async () => {
-      const { userId } = userData?.user || {};
-      const data: DetailData = {
-          userId,
-          title,
-          description,
-          selectedKeywords,
-          selectedPayment,
-          placeName: selectPlace.road_address_name,
-          placeCategory: selectPlace.category_name,
-          placePhone: selectPlace.phone,
-          placeUrl: selectPlace.place_url,
-          placeAddr: selectPlace.address_name,
-          placeRoadAddr: selectPlace.road_address_name,
-          lat: selectPlace.y,
-          lng: selectPlace.x,
-          joinedPeople,
-      };
-      console.log(data);
-      try {
-         const url = import.meta.env.VITE_API_URL;
-         const response = await axios.post(`${url}/api/post`, data);
-         console.log(response);
-         navigate('/detail');
-      } catch (error) {
-         console.error(error);
-      }
+    const data: DetailData = {
+        author: userData?.user.author,
+        postId,
+        title,
+        description,
+        selectedKeywords,
+        selectedPayment,
+        placeName: selectPlace.road_address_name,
+        placeCategory: selectPlace.category_name,
+        placePhone: selectPlace.phone,
+        placeUrl: selectPlace.place_url,
+        placeAddr: selectPlace.address_name,
+        placeRoadAddr: selectPlace.road_address_name,
+        x: selectPlace.y,
+        y: selectPlace.x,
+        joinedPeople,
+    };
+    console.log(data);
+    try {
+      setPostId(postId+1);
+      const url = import.meta.env.VITE_API_URL;
+      const response = await axios.post(`${url}/api/post`, data);
+      console.log(response);
+      navigate('/detail');
+    } catch (error) {
+        console.error(error);
+    }
    }
 
    const handleSelectKeyword = (title: string, isActive: boolean) => {
