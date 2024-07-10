@@ -1,16 +1,16 @@
-import { FC, useState, ChangeEvent, FormEvent, useEffect } from 'react'
+import { FC, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios';
 
 export interface User {
-  userid: string
-  passwd: string | undefined
-  email: string | undefined
+  userid: string;
+  passwd: string | undefined;
+  email: string | undefined;
 }
 
 export interface ResponseUserData {
-  result: string
-  data: User
+  result: string;
+  data: User;
 }
 
 const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, gender: string } => {
@@ -39,23 +39,24 @@ const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, 
   const gender = genderCode % 2 === 1 ? '남성' : '여성';
 
   return { age, gender };
-}
+};
+
 export const SignUp: FC = () => {
-  const [user, setUser] = useState<User>({ userid: '', passwd: '', email: '' })
-  const [useridErr, setUseridErr] = useState<boolean>(false)
-  const [passwdErr, setPasswdErr] = useState<boolean>(false)
-  const [emailErr, setEmailErr] = useState<boolean>(false)
-  const [passwordConfirm, setPasswordConfirm] = useState<string>('')
-  const [passwdMatchErr, setPasswdMatchErr] = useState<boolean>(false)
+  const [user, setUser] = useState<User>({ userid: '', passwd: '', email: '' });
+  const [useridErr, setUseridErr] = useState<boolean>(false);
+  const [passwdErr, setPasswdErr] = useState<boolean>(false);
+  const [emailErr, setEmailErr] = useState<boolean>(false);
+  const [passwordConfirm, setPasswordConfirm] = useState<string>('');
+  const [passwdMatchErr, setPasswdMatchErr] = useState<boolean>(false);
   const [ssNum, setSsNum] = useState<string>('');
   const [ssNumSnd, setSsNumSnd] = useState<string>('');
   const [ssnErr, setSsnErr] = useState<boolean>(false);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (ssNum.length === 6 && ssNumSnd.length === 1) {
       try {
-        const { age,gender } = calculateAgeAndGender(ssNum, ssNumSnd);
+        const { age, gender } = calculateAgeAndGender(ssNum, ssNumSnd);
         let ageGroup;
         if (age < 20) {
           ageGroup = '10대';
@@ -78,45 +79,45 @@ export const SignUp: FC = () => {
   }, [ssNum, ssNumSnd]);
 
   const onSubmit = (e: FormEvent<HTMLFormElement>): boolean => {
-    e.preventDefault()
+    e.preventDefault();
 
     let isValid = true;
 
-    let isUserid: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userid)
+    let isUserid: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userid);
     if (!isUserid) {
-      setUseridErr(true)
+      setUseridErr(true);
     } else {
-      setUseridErr(false)
+      setUseridErr(false);
     }
 
     if (user.passwd !== undefined) {
-      let isPasswd: boolean = /^[\w!_-]{4,8}$/.test(user.passwd)
+      let isPasswd: boolean = /^[\w!_-]{4,8}$/.test(user.passwd);
       if (!isPasswd) {
-        setPasswdErr(true)
+        setPasswdErr(true);
       } else {
-        setPasswdErr(false)
+        setPasswdErr(false);
       }
     } else {
-      setPasswdErr(true)
+      setPasswdErr(true);
     }
 
     if (user.email !== undefined) {
-      let isEmail: boolean = /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(user.email)
+      let isEmail: boolean = /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(user.email);
       if (!isEmail) {
-        setEmailErr(true)
+        setEmailErr(true);
         return false;
       } else {
-        setEmailErr(false)
+        setEmailErr(false);
       }
     } else {
-      setEmailErr(true)
+      setEmailErr(true);
     }
 
     if (user.passwd !== passwordConfirm) {
-      setPasswdMatchErr(true)
-      return false
+      setPasswdMatchErr(true);
+      return false;
     } else {
-      setPasswdMatchErr(false)
+      setPasswdMatchErr(false);
     }
 
     if (!ssNum || !ssNumSnd) {
@@ -135,57 +136,55 @@ export const SignUp: FC = () => {
       return false;
     }
 
-    
-    
-    requestJoin()
+    requestJoin();
     return isValid;
-  }
+  };
 
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      const response: AxiosResponse<ResponseUserData> = await axios.post(`${url}/api/register`, user)
-      const responseData: ResponseUserData = response.data
+      const response: AxiosResponse<ResponseUserData> = await axios.post(`${url}/api/register`, user);
+      const responseData: ResponseUserData = response.data;
 
       if (responseData && responseData.result === 'success') {
-        alert('회원가입 완료. 로그인 페이지로 이동합니다')
-        navigate('/login')
+        alert('회원가입 완료. 로그인 페이지로 이동합니다');
+        navigate('/login');
       } else {
-        alert('회원 가입 실패-아이디 중복을 체크하세요')
+        alert('회원 가입 실패-아이디 중복을 체크하세요');
       }
     } catch (err: any) {
-      alert('Error: ' + JSON.stringify(err))
+      alert('Error: ' + JSON.stringify(err));
     }
-  }
+  };
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
-    setUser({ ...user, [e.target.name]: e.target.value })
-  }
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
 
   const onChangePasswordConfirm = (e: ChangeEvent<HTMLInputElement>): void => {
-    setPasswordConfirm(e.target.value)
-    console.log('비밀번호확인'+e.target.value)
-    if (user.passwd != passwordConfirm) {
-      setPasswdMatchErr(true)
+    setPasswordConfirm(e.target.value);
+    if (user.passwd !== e.target.value) {
+      setPasswdMatchErr(true);
     } else {
-      setPasswdMatchErr(false)
+      setPasswdMatchErr(false);
     }
-//
-  }
+  };
 
   const onChangeSsNum = (e: ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
     if (value.length <= 6) {
-    setSsNum(e.target.value)
-    console.log(value);
-  }
-}
+      setSsNum(value);
+      console.log(value);
+    }
+  };
+
   const onChangeSsNumSnd = (e: ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
-  if (value.length <= 1) {
-    setSsNumSnd(e.target.value)
-  }
-}
+    if (value.length <= 1) {
+      setSsNumSnd(value);
+    }
+  };
+
   return (
     <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col space-y-4">
       <form onSubmit={onSubmit} className="w-211 space-y-9">
@@ -289,5 +288,5 @@ export const SignUp: FC = () => {
         </div>
       </form>
     </section>
-  )
-}
+  );
+};
