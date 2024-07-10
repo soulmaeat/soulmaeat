@@ -138,21 +138,25 @@ export const SignUp: FC = () => {
 
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
-    alert('a')
     try {
-      const response: AxiosResponse<ResponseUserData> 
-      = await axios.post(`${url}/api/register`, user);
-      const responseData: ResponseUserData = response.data;
-      if (responseData && responseData.result === 'success') {
+      const response: AxiosResponse<User> = await axios.post(`${url}/api/register`, user);
+      const responseData: User = response.data;
+      console.log('Response Data:', responseData); // 응답 데이터 확인
+  
+      // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단합니다.
+      if (responseData && responseData.userId) { // userId 필드가 있으면 성공으로 간주
         alert('회원가입 완료. 로그인 페이지로 이동합니다');
         navigate('/onboard');
       } else {
+        console.log('Unexpected response data:', responseData);
         alert('회원 가입 실패-아이디 중복을 체크하세요');
       }
     } catch (err: any) {
+      console.error('Error response:', err.response); // 에러 메시지 출력
       alert('Error: ' + JSON.stringify(err.response));
     }
   };
+  
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -280,9 +284,6 @@ export const SignUp: FC = () => {
         </div>
         <div>
           <button type="submit"
-            // onClick={()=>{
-            //   navigate('/onboard');
-            // }}
             className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">다음</button>
         </div>
       </form>
