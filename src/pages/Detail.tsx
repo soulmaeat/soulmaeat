@@ -28,7 +28,7 @@ export const Detail = ({ userData }: DetailProps) => {
     loadKakaoMap();
   }, []);
 
-  console.log(userData?.user);
+  console.log(userData);
 
   const loadKakaoMap = () => {
     if (kakao) {
