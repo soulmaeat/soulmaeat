@@ -280,9 +280,9 @@ export const SignUp: FC = () => {
         </div>
         <div>
           <button type="submit"
-            onClick={()=>{
-              navigate('/onboard');
-            }}
+            // onClick={()=>{
+            //   navigate('/onboard');
+            // }}
             className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">다음</button>
         </div>
       </form>
