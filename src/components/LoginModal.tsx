@@ -1,7 +1,7 @@
 import { FC, useState, useRef, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Main } from './MainPage';
+import { MainPage } from '../pages/MainPage';
 
 interface LoginModalProps {
   closeModal: () => void;
@@ -116,8 +116,10 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal }) => {
         <div>
           <button
             type="submit"
-            onClick={onClickHandler}
-            // onClick={() => navigate('/main')}
+            onClick={(e)=>{
+              onClickHandler(e);
+              navigate('/');
+            }}
             className="w-full py-2 mb-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full"
           >
             로그인

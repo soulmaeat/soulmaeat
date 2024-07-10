@@ -1,5 +1,5 @@
 import { FC, useState } from 'react';
-import { LoginModal } from '../LoginModal';
+import { LoginModal } from '../../components/LoginModal';
 import { SignUp } from './SignUp';
 import { useNavigate } from 'react-router-dom';
 
