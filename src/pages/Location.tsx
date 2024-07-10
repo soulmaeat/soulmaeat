@@ -216,15 +216,15 @@ export const Location:FC = () => {
           }
           {(locationInfo.roadAddr&&locationInfo.adminAddr)||(!locationInfo.adminAddr&&locationInfo.roadAddr)&&
             // 도로명이 있으면 도로명으로, 없으면 행정동으로 출력 (부가 주소)
-           <div className='flex'>
+           <div className='mt-2 flex'>
              <Badge props={badgeRoad} />
-             <p className='mt-2 ml-2'>{locationInfo.roadAddr}</p>
+             <p className='ml-2'>{locationInfo.roadAddr}</p>
            </div>
           }
           {!locationInfo.roadAddr&&locationInfo.adminAddr&&
-           <div className='flex'>
+           <div className='mt-2 flex'>
              <Badge props={badgeAdmin} />
-             <p className='mt-2 ml-2'>{locationInfo.adminAddr}</p>
+             <p className='ml-2'>{locationInfo.adminAddr}</p>
            </div>
           }
           {!locationInfo.roadAddr&&!locationInfo.adminAddr&&locationInfo.numberAddr&&
