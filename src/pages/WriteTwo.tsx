@@ -1,40 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
+import { Bills } from '../components/Bills';
+import { UserData } from '../App';
 import axios from 'axios';
 
 
-interface WriteTwoProps { 
-   userid: string;
+interface DetailData { 
+   userId: any | null;
    title: string;
    description: string;
    selectedKeywords: string[];
-   selectedPayment: string;
-   selectPlace: any;
+   selectedPayment: string | null;
+   joinedPeople: number;
+   placeName: string | undefined;
+   placeCategory: string | undefined;
+   placePhone: string | undefined;
+   placeUrl: string | undefined;
+   placeAddr: string | undefined;
+   placeRoadAddr: string | undefined;
+   lat: number;
+   lng: number;
 }
 
-interface MenuProps {
+interface BillsProps {
    name: string;
    price: number;
    quantity: number;
    total: number;
 }
 
-const WriteTwo: React.FC = () => {
+interface WriteProps { // props로 받아올 user 정보
+   userData: UserData | null;
+}
+
+const WriteTwo:FC<WriteProps> = ({userData}) => {
    const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
    const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
    const [title, setTitle] = useState('');
    const [description, setDescription] = useState('');
    const [isButtonActive, setIsButtonActive] = useState(false);
    const [beforeSelectedPlace, setBeforeSelectedPlace] = useState<any>(null);
+   const [joinedPeople, setJoinedPeople] = useState<number>(1);
    const navigate = useNavigate();
    const location = useLocation();
    const { selectPlace } = location.state || {};
    // 모바일 영수증이 식당 값이 바뀌지 않는 이상, localstorage에 저장해두고,
    // 실수로 새로고침을 해도 값이 유지되도록 하기
    const [menuList, setMenuList] = useState<any[]>([]);
-
+   
    useEffect(() => {
       if (title && description && selectedPayment) {
          setIsButtonActive(true);
@@ -49,9 +64,39 @@ const WriteTwo: React.FC = () => {
             if(selectPlace.id===beforeSelectedPlace.id)return;
          }
          setMenuList([]);
+         setBeforeSelectedPlace(selectPlace);
          localStorage.setItem('selectedPlace', JSON.stringify(selectPlace));
       }
    },[selectPlace])
+
+   const sendDetailInfo = async () => {
+      const { userId } = userData?.user || {};
+      const data: DetailData = {
+          userId,
+          title,
+          description,
+          selectedKeywords,
+          selectedPayment,
+          placeName: selectPlace.road_address_name,
+          placeCategory: selectPlace.category_name,
+          placePhone: selectPlace.phone,
+          placeUrl: selectPlace.place_url,
+          placeAddr: selectPlace.address_name,
+          placeRoadAddr: selectPlace.road_address_name,
+          lat: selectPlace.y,
+          lng: selectPlace.x,
+          joinedPeople,
+      };
+      console.log(data);
+      try {
+         const url = import.meta.env.VITE_API_URL;
+         const response = await axios.post(`${url}/api/post`, data);
+         console.log(response);
+         navigate('/detail');
+      } catch (error) {
+         console.error(error);
+      }
+   }
 
    const handleSelectKeyword = (title: string, isActive: boolean) => {
       setSelectedKeywords((prev) => {
@@ -62,7 +107,6 @@ const WriteTwo: React.FC = () => {
          }
       });
    };
-
 
    const handleSelectPayment = (paymentType: string) => {
       setSelectedPayment(paymentType);
@@ -77,11 +121,31 @@ const WriteTwo: React.FC = () => {
          <div className="text-[20px] font-bold px-5">글을 작성해주세요</div>
          <div className='mt-[20px] mb-[32px] w-[100%] h-[1px] bg-[#888888]'></div>
          {selectPlace&&
-         <dl className='mb-8 mx-3'>
-            <dt></dt>
-            <dd className='text-md'>{selectPlace.place_name}</dd>
-            <dd className='text-sm font-thin'>{selectPlace.road_address_name}</dd>
-         </dl> 
+         <div className='flex justify-between mb-8 mx-3'>
+          <dl className='flex flex-col justify-center'>
+              <dt></dt>
+              <dt className='text-md'>{selectPlace.place_name}</dt>
+              <dd className='text-sm font-thin'>{selectPlace.road_address_name}</dd>
+          </dl>
+          <div className='mr-4 flex flex-col items-center'>
+            <span className='font-bold mb-2'>모집 인원</span>
+            <div className='flex'>
+              <button onClick={()=>{
+                if(joinedPeople>1)setJoinedPeople(joinedPeople-1);
+              }}
+              className='mr-2 p-1 bg-customOrange text-white w-[28px] h-[28px] 
+              flex items-center justify-center rounded-sm'>-</button>
+              <span>{joinedPeople}명</span> 
+              <button onClick={()=>{
+                if(joinedPeople<5){setJoinedPeople(joinedPeople+1)}else{
+                  alert('최대 5명까지만 가능합니다.');
+                }
+              }}
+              className='ml-2 p-1 bg-customOrange text-white w-[28px] h-[28px] 
+              flex items-center justify-center rounded-sm'>+</button>
+            </div>
+          </div>
+         </div>
          }
          <textarea
             className='w-full h-[50px] mb-[34px] border border-[#D6D6D6] rounded-[12px] p-2 py-3'
@@ -107,7 +171,7 @@ const WriteTwo: React.FC = () => {
                </div>
             </div>
          </div>
-         <div className="flex justify-center space-x-24 mb-10">
+         <div className="flex justify-center space-x-24">
             <div
                className={`flex justify-center items-center w-[140px] h-[40px] text-[16px] font-bold border rounded-[16px] cursor-pointer transition-all duration-300
                ${selectedPayment === '미리 결제' ? 'bg-[#D75B22] text-white' : 'text-[#D75B22] border-[#D75B22]'}`}
@@ -121,55 +185,13 @@ const WriteTwo: React.FC = () => {
                만나서 결제
             </div>
          </div>
+         <div className='flex justify-center space-x-24 mt-2 mb-10 text-sm text-center text-gray-500'>
+            <p className='w-[140px]'>* 뷔페와 같이 동일 가격의 식당에서 추천해요.</p>
+            <p className=''>* 만나서 결제를 추천해요.</p>
+         </div>
          {selectedPayment==='미리 결제'&&
-         <div className="mb-20 w-full flex-col items-center  max-w-xl">
-            <div className='px-4 w-full'>
-               <h2 className='text-xl font-bold'>모바일 영수증</h2>
-               <p className='border-b border-black pb-4'>정확한 가격을 기재해주세요.</p>
-            </div>
-            <div className='mb-2 mt-3 px-4'>
-               {/* <p className='text-gray-400 text-center'>예) 로제파스타 | 12,000원 | 1개</p> */}
-               <div className='flex justify-between font-bold mt-3'>
-                  <p>상품명</p>
-                  <p>가격</p>
-                  <p>수량</p>
-                  <p>총액</p>
-               </div>
-               <ul className='border-b border-black pb-3'>
-                  {
-                  <>
-                     <li className='flex justify-between mt-3'>
-                        <p>로제파스타</p>
-                        <p><span>12,000</span>원</p>
-                        <p>2</p>
-                        <p><span>24,000</span>원</p>
-                     </li>
-                     <li className='flex justify-between mt-3'>
-                        <p>크림리조또</p>
-                        <p><span>9,000</span>원</p>
-                        <p>3</p>
-                        <p><span>27,000</span>원</p>
-                     </li>
-                  </>
-                  }
-               </ul>
-            </div>
-            <div className='px-4'>
-               <h3 className='font-[600] text-lg text-end'>총 합계</h3>
-               <p className='text-end'>51,000원</p>
-            </div>
-            <div className='w-full flex justify-between items-center mt-4 shrink-0 px-4'>
-               <input className='h-10 w-[30%] px-1 rounded-xl bg-gray-100 text-center'
-               type="text" placeholder='상품명' />
-               <input className='h-10 w-[20%] px-1 rounded-xl bg-gray-100 text-center'
-               type="number" placeholder='가격' />
-               <input className='h-10 w-[14%] px-1 rounded-xl bg-gray-100 text-center'
-               type="number" placeholder='수량' />
-               
-               <p className='inline-block'><span>총액</span>원</p>
-               <button className='block rounded-[40px] whitespace-nowrap bg-customOrange text-white w-[43px] h-[32px]'>추가</button>
-            </div>
-
+         <div className='flex justify-center'>
+           <Bills />
          </div>
          }
          <div className='mb-[56px] w-full text-center'>
@@ -177,7 +199,7 @@ const WriteTwo: React.FC = () => {
                className={` left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
                ${isButtonActive ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`}
                onClick={() => {
-                  if (isButtonActive) navigate('/detail');
+                  if (isButtonActive) sendDetailInfo();
                }}>
                다음
             </button>
