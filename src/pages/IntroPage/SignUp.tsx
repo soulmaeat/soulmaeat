@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import axios, { AxiosResponse } from 'axios';
 
 export interface User {
-  userid: string;
-  passwd: string | undefined;
+  userId: string;
+  password: string | undefined;
   email: string | undefined;
+  gender?: string;
+  age?: number | undefined;
 }
 
 export interface ResponseUserData {
@@ -42,12 +44,12 @@ const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, 
 };
 
 export const SignUp: FC = () => {
-  const [user, setUser] = useState<User>({ userid: '', passwd: '', email: '' });
-  const [useridErr, setUseridErr] = useState<boolean>(false);
-  const [passwdErr, setPasswdErr] = useState<boolean>(false);
+  const [user, setUser] = useState<User>({ userId: '', password: '', email: '' , gender: '', age: undefined});
+  const [userIdErr, setuserIdErr] = useState<boolean>(false);
+  const [passwordErr, setpasswordErr] = useState<boolean>(false);
   const [emailErr, setEmailErr] = useState<boolean>(false);
   const [passwordConfirm, setPasswordConfirm] = useState<string>('');
-  const [passwdMatchErr, setPasswdMatchErr] = useState<boolean>(false);
+  const [passwordMatchErr, setpasswordMatchErr] = useState<boolean>(false);
   const [ssNum, setSsNum] = useState<string>('');
   const [ssNumSnd, setSsNumSnd] = useState<string>('');
   const [ssnErr, setSsnErr] = useState<boolean>(false);
@@ -78,27 +80,27 @@ export const SignUp: FC = () => {
     }
   }, [ssNum, ssNumSnd]);
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>): boolean => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     let isValid = true;
 
-    let isUserid: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userid);
-    if (!isUserid) {
-      setUseridErr(true);
+    let isuserId: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userId);
+    if (!isuserId) {
+      setuserIdErr(true);
     } else {
-      setUseridErr(false);
+      setuserIdErr(false);
     }
 
-    if (user.passwd !== undefined) {
-      let isPasswd: boolean = /^[\w!_-]{4,8}$/.test(user.passwd);
-      if (!isPasswd) {
-        setPasswdErr(true);
+    if (user.password !== undefined) {
+      let ispassword: boolean = /^[\w!_-]{4,8}$/.test(user.password);
+      if (!ispassword) {
+        setpasswordErr(true);
       } else {
-        setPasswdErr(false);
+        setpasswordErr(false);
       }
     } else {
-      setPasswdErr(true);
+      setpasswordErr(true);
     }
 
     if (user.email !== undefined) {
@@ -113,11 +115,11 @@ export const SignUp: FC = () => {
       setEmailErr(true);
     }
 
-    if (user.passwd !== passwordConfirm) {
-      setPasswdMatchErr(true);
+    if (user.password !== passwordConfirm) {
+      setpasswordMatchErr(true);
       return false;
     } else {
-      setPasswdMatchErr(false);
+      setpasswordMatchErr(false);
     }
 
     if (!ssNum || !ssNumSnd) {
@@ -127,33 +129,28 @@ export const SignUp: FC = () => {
       setSsnErr(false);
     }
 
-    try {
-      const { age, gender } = calculateAgeAndGender(ssNum, ssNumSnd);
-      console.log(`Age: ${age}, Gender: ${gender}`);
-    } catch (err) {
-      console.error((err as Error).message);
-      setSsnErr(true);
-      return false;
-    }
-
-    requestJoin();
-    return isValid;
-  };
+  try {
+    await requestJoin();
+  } catch (err) {
+    console.error('Error during sign up:', err);
+  }
+};
 
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
+    alert('a')
     try {
-      const response: AxiosResponse<ResponseUserData> = await axios.post(`${url}/api/register`, user);
+      const response: AxiosResponse<ResponseUserData> 
+      = await axios.post(`${url}/api/register`, user);
       const responseData: ResponseUserData = response.data;
-
       if (responseData && responseData.result === 'success') {
         alert('회원가입 완료. 로그인 페이지로 이동합니다');
-        navigate('/login');
+        navigate('/onboard');
       } else {
         alert('회원 가입 실패-아이디 중복을 체크하세요');
       }
     } catch (err: any) {
-      alert('Error: ' + JSON.stringify(err));
+      alert('Error: ' + JSON.stringify(err.response));
     }
   };
 
@@ -163,10 +160,10 @@ export const SignUp: FC = () => {
 
   const onChangePasswordConfirm = (e: ChangeEvent<HTMLInputElement>): void => {
     setPasswordConfirm(e.target.value);
-    if (user.passwd !== e.target.value) {
-      setPasswdMatchErr(true);
+    if (user.password !== e.target.value) {
+      setpasswordMatchErr(true);
     } else {
-      setPasswdMatchErr(false);
+      setpasswordMatchErr(false);
     }
   };
 
@@ -197,13 +194,13 @@ export const SignUp: FC = () => {
                   <input
                     type="text"
                     onChange={onChangeValue}
-                    value={user.userid}
+                    value={user.userId}
                     placeholder="닉네임"
-                    name="userid"
+                    name="userId"
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {/* {useridErr && <div className="text-red-500 text-left text-base font-normal">닉네임 형식이 잘못되었습니다.</div>} */}
+                  {/* {userIdErr && <div className="text-red-500 text-left text-base font-normal">닉네임 형식이 잘못되었습니다.</div>} */}
                 </div>
                 <div>
                   <button type="button" className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full">중복확인</button>
@@ -214,13 +211,13 @@ export const SignUp: FC = () => {
               <input
                 type="password"
                 onChange={onChangeValue}
-                value={user.passwd}
+                value={user.password}
                 placeholder="비밀번호"
-                name="passwd"
+                name="password"
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwdErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
+              {passwordErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -232,7 +229,7 @@ export const SignUp: FC = () => {
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwdMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
+              {passwordMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -282,9 +279,11 @@ export const SignUp: FC = () => {
           </ul>
         </div>
         <div>
-          <button
-            type="submit"
-            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">회원가입</button>
+          <button type="submit"
+            onClick={()=>{
+              navigate('/onboard');
+            }}
+            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">다음</button>
         </div>
       </form>
     </section>
