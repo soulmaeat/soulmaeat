@@ -2,7 +2,24 @@ import React, { useState, useEffect } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
-import axios from '../lib/axiosCreate';
+import axios from 'axios';
+
+
+interface WriteTwoProps { 
+   userid: string;
+   title: string;
+   description: string;
+   selectedKeywords: string[];
+   selectedPayment: string;
+   selectPlace: any;
+}
+
+interface MenuProps {
+   name: string;
+   price: number;
+   quantity: number;
+   total: number;
+}
 
 const WriteTwo: React.FC = () => {
    const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);
@@ -10,10 +27,13 @@ const WriteTwo: React.FC = () => {
    const [title, setTitle] = useState('');
    const [description, setDescription] = useState('');
    const [isButtonActive, setIsButtonActive] = useState(false);
+   const [beforeSelectedPlace, setBeforeSelectedPlace] = useState<any>(null);
    const navigate = useNavigate();
    const location = useLocation();
    const { selectPlace } = location.state || {};
-
+   // 모바일 영수증이 식당 값이 바뀌지 않는 이상, localstorage에 저장해두고,
+   // 실수로 새로고침을 해도 값이 유지되도록 하기
+   const [menuList, setMenuList] = useState<any[]>([]);
 
    useEffect(() => {
       if (title && description && selectedPayment) {
@@ -22,6 +42,16 @@ const WriteTwo: React.FC = () => {
          setIsButtonActive(false);
       }
    }, [title, description, selectedPayment]);
+
+   useEffect(()=>{
+      if(selectPlace!==beforeSelectedPlace){
+         if(beforeSelectedPlace){
+            if(selectPlace.id===beforeSelectedPlace.id)return;
+         }
+         setMenuList([]);
+         localStorage.setItem('selectedPlace', JSON.stringify(selectPlace));
+      }
+   },[selectPlace])
 
    const handleSelectKeyword = (title: string, isActive: boolean) => {
       setSelectedKeywords((prev) => {
@@ -32,6 +62,7 @@ const WriteTwo: React.FC = () => {
          }
       });
    };
+
 
    const handleSelectPayment = (paymentType: string) => {
       setSelectedPayment(paymentType);
@@ -154,5 +185,6 @@ const WriteTwo: React.FC = () => {
       </section>
    )
 }
+
 
 export default WriteTwo;
