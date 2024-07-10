@@ -59,7 +59,7 @@ const WriteTwo: React.FC = () => {
             onChange={(e) => setTitle(e.target.value)}
          ></textarea>
          <textarea
-            className='w-full h-[340px] border border-[#D6D6D6] rounded-[12px] p-2 py-3 mb-10'
+            className='w-full h-[300px] border border-[#D6D6D6] rounded-[12px] p-2 py-3 mb-10'
             placeholder='소개글을 입력해 주세요'
             value={description}
             onChange={(e) => setDescription(e.target.value)}
