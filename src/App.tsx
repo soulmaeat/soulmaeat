@@ -24,6 +24,21 @@ interface UserInfo {
   token?: string | null;
 }
 
+interface User {
+  age?: number;
+  email?: string;
+  gender?: string;
+  joindedAt?: Date;
+  password?: string;
+  userId?: string;
+  userPreference?: string[];
+  userSoulpay?: string[];
+}
+
+export interface UserData {
+  user: User;
+}
+
 declare global {
   interface Window {
     kakao: any;
@@ -44,7 +59,7 @@ function App() {
       : { lat: 37.56100278, lng: 126.9996417 };
   });
 
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
 
   // 디버깅을 위해 useEffect로 localStorage 값 확인
   // useEffect(() => {
@@ -83,7 +98,7 @@ function App() {
       element: <Layout />,
       children: [
         { path: '/', element: <MainPage addrInfo={addrInfo} /> },
-        { path: '/detail', element: <Detail /> },
+        { path: '/detail', element: <Detail userData={userData} /> },
         { path: '/intropage', element: <IntroPage /> },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile /> },
