@@ -111,7 +111,7 @@ function App() {
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
         { path: '/write', element: <Write latLngInfo={latLngInfo} /> },
-        { path: '/writetwo', element: <WriteTwo /> },
+        { path: '/writetwo', element: <WriteTwo userData={userData} /> },
       ],
     },
   ];

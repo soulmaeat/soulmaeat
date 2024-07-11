@@ -1,100 +1,193 @@
-import { FC, useState, ChangeEvent, FormEvent } from 'react'
+import { FC, useState, ChangeEvent, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios, { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios';
 
-// 사용자 정보를 나타내는 인터페이스를 정의
 export interface User {
-  userid: string
-  passwd: string | undefined
-  email: string | undefined
+  userId: string;
+  password: string | undefined;
+  email: string | undefined;
+  gender?: string;
+  age?: number | undefined;
 }
 
-// 백엔드에서 응답할 데이터 구조를 나타내는 인터페이스를 정의
 export interface ResponseUserData {
-  result: string
-  data: User
+  result: string;
+  data: User;
 }
+
+const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, gender: string } => {
+  const birthYear = parseInt(ssNum.slice(0, 2));
+  const birthMonth = parseInt(ssNum.slice(2, 4));
+  const birthDay = parseInt(ssNum.slice(4, 6));
+  const genderCode = parseInt(ssNumSnd[0]);
+
+  let fullBirthYear;
+  if (genderCode === 1 || genderCode === 2) {
+    fullBirthYear = 1900 + birthYear;
+  } else if (genderCode === 3 || genderCode === 4) {
+    fullBirthYear = 2000 + birthYear;
+  } else {
+    throw new Error('Invalid gender code');
+  }
+
+  const today = new Date();
+  let age = today.getFullYear() - fullBirthYear;
+  if (
+    today.getMonth() + 1 < birthMonth ||
+    (today.getMonth() + 1 === birthMonth && today.getDate() < birthDay)
+  ) {
+    age--;
+  }
+  const gender = genderCode % 2 === 1 ? '남성' : '여성';
+
+  return { age, gender };
+};
 
 export const SignUp: FC = () => {
-  const [user, setUser] = useState<User>({ userid: '', passwd: '', email: '' })
-  const [useridErr, setUseridErr] = useState<boolean>(false)
-  const [passwdErr, setPasswdErr] = useState<boolean>(false)
-  const [emailErr, setEmailErr] = useState<boolean>(false)
-  const [passwordConfirm, setPasswordConfirm] = useState<string>('')
-  const [passwdMatchErr, setPasswdMatchErr] = useState<boolean>(false)
-  const navigate = useNavigate()
+  const [user, setUser] = useState<User>({ userId: '', password: '', email: '' , gender: '', age: undefined});
+  const [userIdErr, setuserIdErr] = useState<boolean>(false);
+  const [passwordErr, setpasswordErr] = useState<boolean>(false);
+  const [emailErr, setEmailErr] = useState<boolean>(false);
+  const [passwordConfirm, setPasswordConfirm] = useState<string>('');
+  const [passwordMatchErr, setpasswordMatchErr] = useState<boolean>(false);
+  const [ssNum, setSsNum] = useState<string>('');
+  const [ssNumSnd, setSsNumSnd] = useState<string>('');
+  const [ssnErr, setSsnErr] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>): boolean => {
-    e.preventDefault()
+  useEffect(() => {
+    if (ssNum.length === 6 && ssNumSnd.length === 1) {
+      try {
+        const { age, gender } = calculateAgeAndGender(ssNum, ssNumSnd);
+        let ageGroup;
+        if (age < 20) {
+          ageGroup = '10대';
+        } else if (age >= 20 && age < 30) {
+          ageGroup = '20대';
+        } else if (age >= 30 && age < 40) {
+          ageGroup = '30대';
+        } else if (age >= 40 && age < 50) {
+          ageGroup = '40대';
+        } else if (age >= 50 && age < 60) {
+          ageGroup = '50대';
+        } else {
+          ageGroup = '60대 이상';
+        }
+        console.log(`나이: ${age}, 연령: ${ageGroup}, 성별: ${gender}`);
+      } catch (err) {
+        console.error((err as Error).message);
+      }
+    }
+  }, [ssNum, ssNumSnd]);
 
-    let isUserid: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userid)
-    if (!isUserid) {
-      setUseridErr(true)
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    let isValid = true;
+
+    let isuserId: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userId);
+    if (!isuserId) {
+      setuserIdErr(true);
     } else {
-      setUseridErr(false)
+      setuserIdErr(false);
     }
 
-    if (user.passwd !== undefined) {
-      let isPasswd: boolean = /^[\w!_-]{4,8}$/.test(user.passwd)
-      if (!isPasswd) {
-        setPasswdErr(true)
+    if (user.password !== undefined) {
+      let ispassword: boolean = /^[\w!_-]{4,8}$/.test(user.password);
+      if (!ispassword) {
+        setpasswordErr(true);
       } else {
-        setPasswdErr(false)
+        setpasswordErr(false);
       }
     } else {
-      setPasswdErr(true)
+      setpasswordErr(true);
     }
 
     if (user.email !== undefined) {
-      let isEmail: boolean = /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(user.email)
+      let isEmail: boolean = /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(user.email);
       if (!isEmail) {
-        setEmailErr(true)
+        setEmailErr(true);
         return false;
       } else {
-        setEmailErr(false)
+        setEmailErr(false);
       }
     } else {
-      setEmailErr(true)
+      setEmailErr(true);
     }
 
-    if (user.passwd !== passwordConfirm) {
-      setPasswdMatchErr(true)
-      return false
+    if (user.password !== passwordConfirm) {
+      setpasswordMatchErr(true);
+      return false;
     } else {
-      setPasswdMatchErr(false)
+      setpasswordMatchErr(false);
     }
 
-    requestJoin()
-    return true;
+    if (!ssNum || !ssNumSnd) {
+      setSsnErr(true);
+      return false;
+    } else {
+      setSsnErr(false);
+    }
+
+  try {
+    await requestJoin();
+  } catch (err) {
+    console.error('Error during sign up:', err);
   }
+};
 
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      const response: AxiosResponse<ResponseUserData> = await axios.post(`${url}/api/register`, user)
-      const responseData: ResponseUserData = response.data
-
-      if (responseData && responseData.result === 'success') {
-        alert('회원가입 완료. 로그인 페이지로 이동합니다')
-        navigate('/login')
+      const response: AxiosResponse<User> = await axios.post(`${url}/api/register`, user);
+      const responseData: User = response.data;
+      console.log('Response Data:', responseData); // 응답 데이터 확인
+  
+      // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단합니다.
+      if (responseData && responseData.userId) { // userId 필드가 있으면 성공으로 간주
+        alert('회원가입 완료. 로그인 페이지로 이동합니다');
+        navigate('/onboard');
       } else {
-        alert('회원 가입 실패-아이디 중복을 체크하세요')
+        console.log('Unexpected response data:', responseData);
+        alert('회원 가입 실패-아이디 중복을 체크하세요');
       }
     } catch (err: any) {
-      alert('Error: ' + JSON.stringify(err))
+      console.error('Error response:', err.response); // 에러 메시지 출력
+      alert('Error: ' + JSON.stringify(err.response));
     }
-  }
+  };
+  
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
-    setUser({ ...user, [e.target.name]: e.target.value })
-  }
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
 
   const onChangePasswordConfirm = (e: ChangeEvent<HTMLInputElement>): void => {
-    setPasswordConfirm(e.target.value)
-  }
+    setPasswordConfirm(e.target.value);
+    if (user.password !== e.target.value) {
+      setpasswordMatchErr(true);
+    } else {
+      setpasswordMatchErr(false);
+    }
+  };
+
+  const onChangeSsNum = (e: ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    if (value.length <= 6) {
+      setSsNum(value);
+      console.log(value);
+    }
+  };
+
+  const onChangeSsNumSnd = (e: ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    if (value.length <= 1) {
+      setSsNumSnd(value);
+    }
+  };
 
   return (
-    <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col ... space-y-4">
+    <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col space-y-4">
       <form onSubmit={onSubmit} className="w-211 space-y-9">
         <h1><img src={'./img/logo_signup.png'} className="mx-auto" alt="logo" /></h1>
         <div>
@@ -105,13 +198,13 @@ export const SignUp: FC = () => {
                   <input
                     type="text"
                     onChange={onChangeValue}
-                    value={user.userid}
-                    placeholder="아이디"
-                    name="userid"
+                    value={user.userId}
+                    placeholder="닉네임"
+                    name="userId"
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {useridErr && <div className="text-red-500 text-left text-base font-normal">아이디 형식이 잘못되었습니다.</div>}
+                  {/* {userIdErr && <div className="text-red-500 text-left text-base font-normal">닉네임 형식이 잘못되었습니다.</div>} */}
                 </div>
                 <div>
                   <button type="button" className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full">중복확인</button>
@@ -122,13 +215,13 @@ export const SignUp: FC = () => {
               <input
                 type="password"
                 onChange={onChangeValue}
-                value={user.passwd}
+                value={user.password}
                 placeholder="비밀번호"
-                name="passwd"
+                name="password"
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwdErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
+              {passwordErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -140,7 +233,7 @@ export const SignUp: FC = () => {
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwdMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
+              {passwordMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -160,6 +253,8 @@ export const SignUp: FC = () => {
                 <div className="pr-4 w-1/2">
                   <input
                     type="number"
+                    onChange={onChangeSsNum}
+                    value={ssNum}
                     placeholder="9 9 1 2 3 1"
                     name="ssNum"
                     className="no-spinner w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
@@ -169,8 +264,10 @@ export const SignUp: FC = () => {
                 <div className="w-1/2">
                   <input
                     type="number"
+                    onChange={onChangeSsNumSnd}
+                    value={ssNumSnd}
                     placeholder="1 * * * * * *"
-                    name="ssNum"
+                    name="ssNumSnd"
                     className="no-spinner w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
@@ -186,11 +283,10 @@ export const SignUp: FC = () => {
           </ul>
         </div>
         <div>
-          <button
-            type="submit"
-            className="w-full py-2 mb-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full">회원가입</button>
+          <button type="submit"
+            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">다음</button>
         </div>
       </form>
     </section>
-  )
-}
+  );
+};

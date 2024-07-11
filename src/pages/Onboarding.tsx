@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PreferTab from '../components/PreferTab';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const Onboarding: React.FC = () => {
   const [selectedPreferences, setSelectedPreferences] = useState<string[]>([]);
@@ -20,6 +21,24 @@ const Onboarding: React.FC = () => {
 
   const isButtonEnabled = selectedPreferences.length > 0;
   //isButtonEnabled 변수를 사용하여 선택된 취향이 하나 이상이면 버튼의 스타일을 변경합니다.
+
+
+  const handleNextButtonClick = async () => {
+    if (isButtonEnabled) {
+      try {
+        // 백엔드에 선택된 선호도를 보내는 API 호출
+        await axios.post('/api/user/register', {
+          preferences: selectedPreferences
+        });
+
+        // 요청이 성공하면 메인 페이지로 이동
+        navigate('/');
+      } catch (error) {
+        console.error('Failed to save preferences:', error);
+        // 에러 처리 로직 추가
+      }
+    }
+  };
 
   return (
     <section className="max-w-3xl mx-auto p-5">
@@ -45,8 +64,8 @@ const Onboarding: React.FC = () => {
         placeholder='자신을 간단히 소개해 주세요'></textarea>
       <button
         className={`fixed bottom-[56px] left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 ${isButtonEnabled ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`} 
-        onClick={() => navigate('/')}>
-        다음
+        onClick={handleNextButtonClick}>
+        회원가입
       </button>
     </section>
   );

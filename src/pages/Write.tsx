@@ -94,6 +94,8 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
   // 선택한 장소 정보 저장, 버튼 활성화
   const selectedPlace = (place:any, index:number) => {
     setSelectPlace(place);
+    console.log(place);
+    
     setSelectedPlaceIndex(index);
     setIsButtonSelected(true);
     setIsButtonActive(true);
