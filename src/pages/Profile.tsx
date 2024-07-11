@@ -3,7 +3,8 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
 import { useWallet } from '../contexts/WalletContext';
-import { UserData } from '../App';
+import { UserData, UserInfo } from '../App';
+import axios from 'axios';
 
 interface ProfileProps {
   userData: UserData | null;
@@ -13,33 +14,61 @@ const Profile = ({ userData }: ProfileProps) => {
   const [firepower, setFirepower] = useState(36.5);
   const navigate = useNavigate();
   const { soulBalance } = useWallet();
-  const [isEditing, setIsEditing] = useState(false);
-  const [introduction, setIntroduction] = useState('');
-  const [error, setError] = useState("");
+  const [introduce, setIntroduce] = useState(userData?.user?.introduce || '');
+  const [isEditing, setIsEditing] = useState(false); 
+  const [error, setError] = useState('');
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [currentFirepower, setCurrentFirepower] = useState(firepower);
 
   const user = userData?.user || {};
   const keywordArr = userData?.user?.userPreference?.[0]?.PreferenceList || [];
-
-  // console.log(userPreference);
   // console.log(userData?.user?.userPreference?.[0]?.PreferenceList);
+
+  useEffect(() => {
+    const savedIntroduce = localStorage.getItem('introduce');
+    if (savedIntroduce) {
+      setIntroduce(savedIntroduce);
+    }
+  }, []);
 
   const handleEditingClick = () => {
     setIsEditing(true);
+    if (textAreaRef.current) {
+      textAreaRef.current.focus();
+    }
   };
 
-  const handleSaveClick = () => {
+
+  const storedUserInfo = sessionStorage.getItem('userInfo');
+  const token: UserInfo = storedUserInfo
+    ? JSON.parse(storedUserInfo).token
+    : {};
+    
+  const handleSaveClick = async () => {
+    try {
+      const response = await axios.put(
+        'http://localhost:3000/api/edit',
+        { email: userData?.user?.email, introduce },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      localStorage.setItem('introduce', introduce);
+      console.log(response.data); // 성공적으로 업데이트된 경우 처리
+    } catch (error) {
+      console.error('Error updating introduction:', error);
+    }
     setIsEditing(false);
-    setError("");
   };
-
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= 50) {
-      setIntroduction(e.target.value);
-      setError("");
+      setIntroduce(e.target.value);
+      setError('');
     } else {
-      setError("글자 수는 50자 이내여야 합니다.");
+      setError('글자 수는 50자 이내여야 합니다.');
     }
   };
 
@@ -69,7 +98,8 @@ const Profile = ({ userData }: ProfileProps) => {
           <p className="text-gray-700 font-semibold">{user.userId}</p>
           <p className="text-sm text-gray-400 font-medium">
             <span className='mr-1'>{user.gender}</span>
-            <span>{user.age && Math.floor(user.age / 10) * 10}대</span>
+            {/* <span>{user.age && Math.floor(user.age / 10) * 10}대</span> */}
+            <span>{user.age}</span>
           </p>
         </div>
       </div>
@@ -89,7 +119,8 @@ const Profile = ({ userData }: ProfileProps) => {
       <div className="mt-8 text-gray-600">
         <div className="flex justify-between">
           <h2 className="font-semibold mb-2">소개글</h2>
-          <button className="cursor-pointer text-sm underline" 
+          <button 
+            className="cursor-pointer text-sm underline" 
             onClick={isEditing ? handleSaveClick : handleEditingClick}>
             {isEditing ? '완료' : '수정'}
           </button>
@@ -97,10 +128,11 @@ const Profile = ({ userData }: ProfileProps) => {
         <div className="bg-gray-100 p-4 rounded-md mb-4">
           <textarea
             className="block w-full bg-gray-100 rounded-md"
-            value={introduction}
+            value={introduce}
             onChange={handleInputChange}
             ref={textAreaRef}
             placeholder={'자기소개를 입력해 주세요.'}
+            disabled={!isEditing}
           />
           {error && <p className="text-red-500 text-sm">{error}</p>}
         </div>
