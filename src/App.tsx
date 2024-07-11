@@ -31,7 +31,10 @@ interface User {
   joindedAt?: Date;
   password?: string;
   userId?: string;
-  userPreference?: string[];
+  userPreference: {
+    PreferenceList: string[];
+    _id: string;
+  }[];
   userSoulpay?: string[];
 }
 
