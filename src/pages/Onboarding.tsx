@@ -22,13 +22,14 @@ const Onboarding: React.FC = () => {
   const isButtonEnabled = selectedPreferences.length > 0;
   //isButtonEnabled 변수를 사용하여 선택된 취향이 하나 이상이면 버튼의 스타일을 변경합니다.
 
-
+  const url = import.meta.env.VITE_API_URL;
   const handleNextButtonClick = async () => {
     if (isButtonEnabled) {
       try {
+        const userId = sessionStorage.getItem("userId")
         // 백엔드에 선택된 선호도를 보내는 API 호출
-        await axios.post('/api/user/register', {
-          preferences: selectedPreferences
+        await axios.post(`${url}/api/preference/${userId}`, {
+          userPreference: selectedPreferences
         });
 
         // 요청이 성공하면 메인 페이지로 이동
