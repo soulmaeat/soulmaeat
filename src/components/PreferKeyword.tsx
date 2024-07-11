@@ -3,13 +3,20 @@ import React, { useState, useEffect } from 'react';
 interface PreferKeywordProps {
   title: string;
   onSelect: (title: string, isActive: boolean) => void;
+  keywordLen: number;
 }
 
-const PreferKeyword: React.FC<PreferKeywordProps> = ({ title, onSelect }) => {
+// 최대 3개의 키워드만 선택할 수 있도록 제한하는 컴포넌트
+const PreferKeyword: React.FC<PreferKeywordProps> = ({ title, onSelect, keywordLen }) => {
   const [isActive, setIsActive] = useState(false);
 
   const handleClick = () => {
-    setIsActive(!isActive);
+    if (keywordLen > 2 && !isActive) {
+      alert('최대 3개까지 선택 가능합니다.');
+      return;
+    }else{
+      setIsActive(!isActive);
+    }
   };
 
   useEffect(() => {
