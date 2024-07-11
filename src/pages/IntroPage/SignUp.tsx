@@ -7,7 +7,8 @@ export interface User {
   password: string | undefined;
   email: string | undefined;
   gender?: string;
-  age?: number | undefined;
+  age?: any | undefined;
+  ageGroup?: string | undefined;
 }
 
 export interface ResponseUserData {
@@ -15,7 +16,10 @@ export interface ResponseUserData {
   data: User;
 }
 
-const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, gender: string } => {
+const calculateAgeAndGender = (
+  ssNum: string,
+  ssNumSnd: string
+): { age: number; gender: string } => {
   const birthYear = parseInt(ssNum.slice(0, 2));
   const birthMonth = parseInt(ssNum.slice(2, 4));
   const birthDay = parseInt(ssNum.slice(4, 6));
@@ -39,12 +43,18 @@ const calculateAgeAndGender = (ssNum: string, ssNumSnd: string): { age: number, 
     age--;
   }
   const gender = genderCode % 2 === 1 ? '남성' : '여성';
-
   return { age, gender };
 };
 
 export const SignUp: FC = () => {
-  const [user, setUser] = useState<User>({ userId: '', password: '', email: '' , gender: '', age: undefined});
+  const [user, setUser] = useState<User>({
+    userId: '',
+    password: '',
+    email: '',
+    gender: '',
+    age: '',
+    ageGroup: '',
+  });
   const [userIdErr, setuserIdErr] = useState<boolean>(false);
   const [passwordErr, setpasswordErr] = useState<boolean>(false);
   const [emailErr, setEmailErr] = useState<boolean>(false);
@@ -74,6 +84,10 @@ export const SignUp: FC = () => {
           ageGroup = '60대 이상';
         }
         console.log(`나이: ${age}, 연령: ${ageGroup}, 성별: ${gender}`);
+
+        setUser((prevUser) => ({ ...prevUser, gender, age, ageGroup }));
+
+        console.log(user);
       } catch (err) {
         console.error((err as Error).message);
       }
@@ -104,7 +118,10 @@ export const SignUp: FC = () => {
     }
 
     if (user.email !== undefined) {
-      let isEmail: boolean = /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(user.email);
+      let isEmail: boolean =
+        /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(
+          user.email
+        );
       if (!isEmail) {
         setEmailErr(true);
         return false;
@@ -129,24 +146,37 @@ export const SignUp: FC = () => {
       setSsnErr(false);
     }
 
-  try {
-    await requestJoin();
-  } catch (err) {
-    console.error('Error during sign up:', err);
-  }
-};
+    try {
+      await requestJoin();
+    } catch (err) {
+      console.error('Error during sign up:', err);
+    }
+  };
 
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      const response: AxiosResponse<User> = await axios.post(`${url}/api/register`, user);
+      const registerUser = {
+        userId: user.userId,
+        password: user.password,
+        email: user.email,
+        gender: user.gender,
+        age: user.ageGroup,
+      };
+
+      const response: AxiosResponse<User> = await axios.post(
+        `${url}/api/register`,
+        registerUser
+      );
       const responseData: User = response.data;
       console.log('Response Data:', responseData); // 응답 데이터 확인
-  
+
       // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단합니다.
-      if (responseData && responseData.userId) { // userId 필드가 있으면 성공으로 간주
-        alert('회원가입 완료. 로그인 페이지로 이동합니다');
-        navigate('/onboard');
+      if (responseData && responseData.userId) {
+        // userId 필드가 있으면 성공으로 간주
+        alert('회원가입 완료. 로그인 페이지로 이동합니다' + responseData);
+        sessionStorage.setItem('userId', responseData.userId);
+        navigate(`/onboard`);
       } else {
         console.log('Unexpected response data:', responseData);
         alert('회원 가입 실패-아이디 중복을 체크하세요');
@@ -156,7 +186,6 @@ export const SignUp: FC = () => {
       alert('Error: ' + JSON.stringify(err.response));
     }
   };
-  
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -187,9 +216,11 @@ export const SignUp: FC = () => {
   };
 
   return (
-    <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col space-y-4">
+    <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col justify-center w-full h-full space-y-4">
       <form onSubmit={onSubmit} className="w-211 space-y-9">
-        <h1><img src={'./img/logo_signup.png'} className="mx-auto" alt="logo" /></h1>
+        <h1>
+          <img src={'./img/logo_signup.png'} className="mx-auto" alt="logo" />
+        </h1>
         <div>
           <ul className="space-y-9">
             <li>
@@ -207,7 +238,12 @@ export const SignUp: FC = () => {
                   {/* {userIdErr && <div className="text-red-500 text-left text-base font-normal">닉네임 형식이 잘못되었습니다.</div>} */}
                 </div>
                 <div>
-                  <button type="button" className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full">중복확인</button>
+                  <button
+                    type="button"
+                    className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full"
+                  >
+                    중복확인
+                  </button>
                 </div>
               </div>
             </li>
@@ -221,7 +257,11 @@ export const SignUp: FC = () => {
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwordErr && <div className="text-red-500 text-left text-base font-normal">비밀번호 형식이 잘못되었습니다.</div>}
+              {passwordErr && (
+                <div className="text-red-500 text-left text-base font-normal">
+                  비밀번호 형식이 잘못되었습니다.
+                </div>
+              )}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -233,7 +273,11 @@ export const SignUp: FC = () => {
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {passwordMatchErr && <div className="text-red-500 text-left text-base font-normal">비밀번호가 일치하지 않습니다.</div>}
+              {passwordMatchErr && (
+                <div className="text-red-500 text-left text-base font-normal">
+                  비밀번호가 일치하지 않습니다.
+                </div>
+              )}
             </li>
             <li className="text-xl text-gray-300 text-left font-semibold">
               <input
@@ -245,7 +289,11 @@ export const SignUp: FC = () => {
                 className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
               />
               <div className="w-full border-b border-gray-400"></div>
-              {emailErr && <div className="text-red-500 text-left text-base font-normal">이메일 형식이 잘못되었습니다.</div>}
+              {emailErr && (
+                <div className="text-red-500 text-left text-base font-normal">
+                  이메일 형식이 잘못되었습니다.
+                </div>
+              )}
             </li>
             <li className="text-xl text-black-300 text-left font-semibold">
               <div className="py-2">생년월일</div>
@@ -277,14 +325,20 @@ export const SignUp: FC = () => {
             <li>
               <div className="flex">
                 <input type="checkbox" id="myCheckbox" />
-                <p className="pl-3 text-xs text-black-300 text-left font-semibold">위치기반 서비스이용을 위해 이용약관에 동의합니다.</p>
+                <p className="pl-3 text-xs text-black-300 text-left font-semibold">
+                  위치기반 서비스이용을 위해 이용약관에 동의합니다.
+                </p>
               </div>
             </li>
           </ul>
         </div>
         <div>
-          <button type="submit"
-            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full">다음</button>
+          <button
+            type="submit"
+            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full"
+          >
+            다음
+          </button>
         </div>
       </form>
     </section>
