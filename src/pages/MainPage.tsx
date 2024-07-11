@@ -1,5 +1,4 @@
 import React,{useEffect, useState} from 'react';
-import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import MainList from '../components/MainList';
 import { IoIosArrowDown } from "react-icons/io";
@@ -15,15 +14,6 @@ interface MainProps {
 
 const MainPage: React.FC<MainProps> = ({addrInfo}) => {
   const [currentAddr, setCurrentAddr] = useState(addrInfo);
-  const location = useLocation();
-
-  useEffect(() => {
-    topScroll();
-  }, [currentAddr, location]);
-
-  const topScroll = () => {
-    window.scrollTo({top: 0, behavior: 'smooth'});
-  }
 
   return (
     <section className="max-w-3xl mx-auto p-5">

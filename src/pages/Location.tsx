@@ -2,7 +2,7 @@ import {FC, useState, useRef, useEffect} from 'react';
 import {Link} from 'react-router-dom';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoReload } from "react-icons/io5";
-import { Loading } from '../components/Loading';
+import { AiOutlineLoading } from "react-icons/ai";
 import { Badge } from '../components/Badge';
 
 interface Location{
@@ -58,7 +58,6 @@ export const Location:FC = () => {
   useEffect(() => {
     localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
   }, [locationInfo]);
-
   // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
   useEffect(() => {
     if (kakaoMap && geocoder && marker) {
@@ -73,7 +72,6 @@ export const Location:FC = () => {
   // 카카오 지도 생성
   const createKakaoMap = async() => {
     if (containerRef.current && kakao && kakao.maps) {
-      setIsLoading(true);
       let options = {
         center: new kakao.maps.LatLng(latLng.lat, latLng.lng), // 기본 위치: 서울 중구
         level: 3, // 지도 확대 레벨
@@ -84,26 +82,21 @@ export const Location:FC = () => {
       // 주소-좌표 변환 객체 생성
       // 위치 객체 초기화
       setGeocoder(new kakao.maps.services.Geocoder());
-      setIsLoading(false);
     }
   };
 
   // 지도 업데이트 함수
   const updateMap = (latLng: LatLng) => {
     if (kakaoMap) {
-      setIsLoading(true);
       kakaoMap.setCenter(new kakao.maps.LatLng(latLng.lat, latLng.lng));
-      // setIsLoading(false);
     }
   };
 
   // 마커 위치 업데이트 함수
   const updateMarkerPosition = (latLng: LatLng) => {
     if (marker) {
-      setIsLoading(true);
       const newPosition = new kakao.maps.LatLng(latLng.lat, latLng.lng);
       marker.setPosition(newPosition);
-      setIsLoading(false);
     }
   };
 
@@ -126,7 +119,7 @@ export const Location:FC = () => {
   
       // 마커가 지도 위에 표시되도록 설정
       setMarker(newMarker);
-      
+      if(isLoading) setIsLoading(false);
     }else{
       console.error('No map found');
     }
@@ -134,8 +127,8 @@ export const Location:FC = () => {
 
   // 현재 위치를 가져오는 함수
   const getCurrentLocation = async() => {
+    setIsLoading(true);
     if (navigator.geolocation) {
-      setIsLoading(true);
       navigator.geolocation.getCurrentPosition((position:GeolocationPosition) => {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
@@ -144,9 +137,9 @@ export const Location:FC = () => {
         // alert(`현재 위치: ${lat}, ${lng}`);
         if(kakaoMap){
           kakaoMap.setCenter(new kakao.maps.LatLng(lat, lng));
+          setIsLoading(false);
         }
       });
-      setIsLoading(false);
     }else{
       setTimeout(() => {
         if(isLoading&&!locationInfo&&!latLng){ 
@@ -160,7 +153,7 @@ export const Location:FC = () => {
   // 카카오 현재 위치 적용
   const getAddr = async() => {
     if (!geocoder || !kakaoMap) return;
-    setIsLoading(true);
+    
     //좌표로 (법정동) 상세 주소 정보 요청
     const searchDetailAddrFromCoords = (
       coords: kakao.maps.LatLng,
@@ -180,9 +173,7 @@ export const Location:FC = () => {
           roadAddr: roadAddr,
         }));
     }});
-    setIsLoading(false);
-  };
-  // 현위치 재검색
+};
   const reloadHandler = () => {
     getCurrentLocation();
   };
@@ -200,7 +191,11 @@ export const Location:FC = () => {
       </div>
       <div className='w-full h-full relative' style={{overflow: 'hidden'}}>
         {isLoading && 
-          <Loading />
+          <div className='z-10 size-full absolute flex justify-center bg-[#00000033]'>
+            <svg className="animate-spin h-5 w-5 mt-[20vw]" viewBox="0 0 40 40" style={{width: '40px', height: '40px'}}>
+              <AiOutlineLoading className='text-customOrange' size={40}/>
+            </svg>
+          </div>
         }
         <div ref={containerRef} style={{ width: '100%', height: '70%' }}></div>
       </div>
@@ -221,15 +216,15 @@ export const Location:FC = () => {
           }
           {(locationInfo.roadAddr&&locationInfo.adminAddr)||(!locationInfo.adminAddr&&locationInfo.roadAddr)&&
             // 도로명이 있으면 도로명으로, 없으면 행정동으로 출력 (부가 주소)
-           <div className='mt-2 flex'>
+           <div className='flex'>
              <Badge props={badgeRoad} />
-             <p className='ml-2'>{locationInfo.roadAddr}</p>
+             <p className='mt-2 ml-2'>{locationInfo.roadAddr}</p>
            </div>
           }
           {!locationInfo.roadAddr&&locationInfo.adminAddr&&
-           <div className='mt-2 flex'>
+           <div className='flex'>
              <Badge props={badgeAdmin} />
-             <p className='ml-2'>{locationInfo.adminAddr}</p>
+             <p className='mt-2 ml-2'>{locationInfo.adminAddr}</p>
            </div>
           }
           {!locationInfo.roadAddr&&!locationInfo.adminAddr&&locationInfo.numberAddr&&

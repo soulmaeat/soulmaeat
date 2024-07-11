@@ -1,4 +1,4 @@
-import { useState, useEffect, FC } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
@@ -6,29 +6,23 @@ import { Bills } from '../components/Bills';
 import { UserData } from '../App';
 import axios from 'axios';
 
-interface Preference{
-  likeList: string[];
-}
 
 interface DetailData {
-  author: any | null;
-  age: any | null;
-  gender: any | null;
   postId: number;
+  author: any | null;
   title: string;
   description: string;
-  selectPlace: string;
-  selectedKeyword: Preference[];
+  selectedKeywords: string[];
   selectedPayment: string | null;
-  placeName: string;
-  categoryName: string;
-  phone: any | null;
-  placeUrl: string;
-  addressName: string;
-  roadAddressName: string;
+  joinedPeople: number;
+  placeName: string | undefined;
+  placeCategory: string | undefined;
+  placePhone: string | undefined;
+  placeUrl: string | undefined;
+  placeAddr: string | undefined;
+  placeRoadAddr: string | undefined;
   x: number;
   y: number;
-  joinedPeople: number;
 }
 
 interface BillsProps {
@@ -49,8 +43,7 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    const [description, setDescription] = useState('');
    const [isButtonActive, setIsButtonActive] = useState(false);
    const [beforeSelectedPlace, setBeforeSelectedPlace] = useState<any>(null);
-   const [joinedPeople, setJoinedPeople] = useState<number>(2);
-   const [keywordLen, setKeywordLen] = useState<number>(0);
+   const [joinedPeople, setJoinedPeople] = useState<number>(1);
    const navigate = useNavigate();
    const location = useLocation();
    const [postId, setPostId] = useState<number>(0);
@@ -79,33 +72,26 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    },[selectPlace])
 
    const sendDetailInfo = async () => {
-    const user = userData?.user || null;
     const data: DetailData = {
-        author: user?.userId,
-        age: user?.age,
-        gender: user?.gender,
+        author: userData?.user.author,
         postId,
         title,
         description,
-        selectedKeyword: [{ likeList: selectedKeywords }],
+        selectedKeywords,
         selectedPayment,
-        selectPlace: selectPlace.place_name,
-        placeName: selectPlace.address_name,
-        categoryName: selectPlace.category_name,
-        phone: selectPlace.phone,
+        placeName: selectPlace.road_address_name,
+        placeCategory: selectPlace.category_name,
+        placePhone: selectPlace.phone,
         placeUrl: selectPlace.place_url,
-        addressName: selectPlace.address_name,
-        roadAddressName: selectPlace.road_address_name,
+        placeAddr: selectPlace.address_name,
+        placeRoadAddr: selectPlace.road_address_name,
         x: selectPlace.y,
         y: selectPlace.x,
         joinedPeople,
     };
-    // console.log(data);
+    console.log(data);
     try {
-      alert('글 작성이 완료되었습니다.');
-      setPostId((id)=>id+1);
-      console.log(postId);
-      
+      setPostId(postId+1);
       const url = import.meta.env.VITE_API_URL;
       const response = await axios.post(`${url}/api/post`, data);
       console.log(response);
@@ -116,19 +102,13 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    }
 
    const handleSelectKeyword = (title: string, isActive: boolean) => {
-     if(keywordLen>2&&isActive){ // 3개 이상 선택 시 alert(PreferKeyword Comp)
-      return;
-     }else{
-       setSelectedKeywords((prev) => {
-         if(isActive){
-           setKeywordLen(selectedKeywords.length+1)
-           return [...prev, title];
-          }else{
-            setKeywordLen(selectedKeywords.length-1)
-           return prev.filter((item) => item !== title);
+      setSelectedKeywords((prev) => {
+         if (isActive) {
+            return [...prev, title];
+         } else {
+            return prev.filter((item) => item !== title);
          }
-       });
-     }
+      });
    };
 
    const handleSelectPayment = (paymentType: string) => {
@@ -151,11 +131,10 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
               <dd className='text-sm font-thin'>{selectPlace.road_address_name}</dd>
           </dl>
           <div className='mr-4 flex flex-col items-center'>
-            <span className='font-bold'>모집 인원</span>
-            <span className='mb-2 text-xs text-gray-600 font-thin'>*본인 포함</span>
+            <span className='font-bold mb-2'>모집 인원</span>
             <div className='flex'>
               <button onClick={()=>{
-                if(joinedPeople>2)setJoinedPeople(joinedPeople-1);
+                if(joinedPeople>1)setJoinedPeople(joinedPeople-1);
               }}
               className='mr-2 p-1 bg-customOrange text-white w-[28px] h-[28px] 
               flex items-center justify-center rounded-sm'>-</button>
@@ -187,11 +166,11 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
             <div>선호키워드</div>
             <div className="overflow-x-auto">
                <div className='flex whitespace-nowrap'>
-                  <PreferKeyword keywordLen={keywordLen} title='동성 친구만' onSelect={handleSelectKeyword} />
-                  <PreferKeyword keywordLen={keywordLen} title='음주 X' onSelect={handleSelectKeyword} />
-                  <PreferKeyword keywordLen={keywordLen} title='여러 개 주문해서 나눠먹기' onSelect={handleSelectKeyword} />
-                  <PreferKeyword keywordLen={keywordLen} title='조용한 식사' onSelect={handleSelectKeyword} />
-                  <PreferKeyword keywordLen={keywordLen} title='반려동물 동반 가능' onSelect={handleSelectKeyword} />
+                  <PreferKeyword title='동성 친구만' onSelect={handleSelectKeyword} />
+                  <PreferKeyword title='음주 X' onSelect={handleSelectKeyword} />
+                  <PreferKeyword title='여러 개 주문해서 나눠먹기' onSelect={handleSelectKeyword} />
+                  <PreferKeyword title='조용한 식사' onSelect={handleSelectKeyword} />
+                  <PreferKeyword title='반려동물 동반 가능' onSelect={handleSelectKeyword} />
                </div>
             </div>
          </div>
@@ -220,12 +199,12 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
          }
          <div className='mb-[56px] w-full text-center'>
             <button
-               className={` left-0 right-0 mx-auto w-[70%] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
+               className={` left-0 right-0 mx-auto w-[360px] h-[56px] font-bold text-[20px] rounded-[40px] transition-all duration-700 
                ${isButtonActive ? 'bg-[#D75B22] text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'}`}
                onClick={() => {
                   if (isButtonActive) sendDetailInfo();
                }}>
-               글 작성하기
+               다음
             </button>
          </div>
       </section>
