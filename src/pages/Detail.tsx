@@ -1,5 +1,5 @@
 import '../App.css';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { kakao } from '../App';
 import { ModalInfo } from '../components/Modals';
 import { UserData } from '../App';
@@ -13,8 +13,7 @@ interface DetailProps {
   userData: UserData | null;
 }
 
-export const Detail = ({ userData }: DetailProps) => {
-  const tendencyArr = ['많이 먹어요', '조용한 분위기를 좋아해요', '편식해요'];
+export const Detail: React.FC<DetailProps> = ({ userData }) => {
   const likeArr = ['동성 친구만', '여러개 주문해서 나눠먹기', '음주 X'];
 
   const [kakaoMap, setKakaoMap] = useState<any>(null);
@@ -23,12 +22,11 @@ export const Detail = ({ userData }: DetailProps) => {
   const [joinCount, setJoinCount] = useState<number>(1);
 
   const navigate = useNavigate();
+  const preferenceArr = userData?.user.userPreference[0].PreferenceList || [];
 
   useEffect(() => {
     loadKakaoMap();
   }, []);
-
-  console.log(userData);
 
   const loadKakaoMap = () => {
     if (kakao) {
@@ -111,7 +109,11 @@ export const Detail = ({ userData }: DetailProps) => {
                 size={35}
               />
             </div>
-            <img className="w-full max-h-72" src="/fake_img.png" alt="fake" />
+            <img
+              className="w-full max-h-72"
+              src="/profile-image.png"
+              alt="fake"
+            />
           </div>
           <div className="px-2.5 detail_calc pb-[83px]">
             <div className="flex gap-1.5 pt-3">
@@ -133,8 +135,17 @@ export const Detail = ({ userData }: DetailProps) => {
               <div className="flex items-center gap-2">
                 <div className="w-10 h-10 rounded-full bg-slate-300"></div>
                 <div>
-                  <h1 className="font-semibold">돼지력 만랩</h1>
-                  <p className="text-sm text-[#666]">동대문구 을지로 6가</p>
+                  <h1 className="font-semibold">
+                    {userData && userData?.user?.userId}
+                  </h1>
+                  <div>
+                    <span className="text-sm text-[#666] mr-1">
+                      {userData && userData?.user?.gender}
+                    </span>
+                    <span className="text-sm text-[#666]">
+                      {userData && userData?.user?.age}대
+                    </span>
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col items-center gap-2">
@@ -159,12 +170,12 @@ export const Detail = ({ userData }: DetailProps) => {
             <div className="mt-3">
               <h2 className="font-semibold text-[#666] mb-1">성향 키워드</h2>
               <div className="leading-8">
-                {tendencyArr.map((tendency, i) => (
+                {preferenceArr.map((preferList, i) => (
                   <span
                     key={i}
                     className="border border-[#D75B22] rounded-3xl text-[#D75B22] bg-[#FFEFE8] px-2 py-0.5 mr-2 text-nowrap"
                   >
-                    # {tendency}
+                    # {preferList}
                   </span>
                 ))}
               </div>
