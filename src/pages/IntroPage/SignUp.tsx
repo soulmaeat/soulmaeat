@@ -63,6 +63,8 @@ export const SignUp: FC = () => {
   const [ssNum, setSsNum] = useState<string>('');
   const [ssNumSnd, setSsNumSnd] = useState<string>('');
   const [ssnErr, setSsnErr] = useState<boolean>(false);
+  const [checkingUsername, setCheckingUsername] = useState<boolean>(false); // 중복확인 상태 추가
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null); // 중복확인 결과 추가
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -153,16 +155,18 @@ export const SignUp: FC = () => {
     }
   };
 
+  const registerUser = {
+    userId: user.userId,
+    password: user.password,
+    email: user.email,
+    gender: user.gender,
+    age: user.ageGroup,
+  };
+  
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      const registerUser = {
-        userId: user.userId,
-        password: user.password,
-        email: user.email,
-        gender: user.gender,
-        age: user.ageGroup,
-      };
+      
 
       const response: AxiosResponse<User> = await axios.post(
         `${url}/api/register`,
@@ -172,15 +176,15 @@ export const SignUp: FC = () => {
       console.log('Response Data:', responseData); // 응답 데이터 확인
 
       // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단합니다.
-      if (responseData && responseData.userId) {
-        // userId 필드가 있으면 성공으로 간주
-        alert('회원가입 완료. 로그인 페이지로 이동합니다' + responseData);
-        sessionStorage.setItem('userId', responseData.userId);
-        navigate(`/onboard`);
-      } else {
+      if (response.status === 404) {
         console.log('Unexpected response data:', responseData);
         alert('회원 가입 실패-아이디 중복을 체크하세요');
+        return;
       }
+      // userId 필드가 있으면 성공으로 간주
+      alert('회원가입 완료. 로그인 페이지로 이동합니다');
+      sessionStorage.setItem('userId', responseData.userId);
+      navigate(`/onboard`);
     } catch (err: any) {
       console.error('Error response:', err.response); // 에러 메시지 출력
       alert('Error: ' + JSON.stringify(err.response));
@@ -215,8 +219,32 @@ export const SignUp: FC = () => {
     }
   };
 
+  const userId =  user.userId;
+  const checkUsername = async () => {
+    // setCheckingUsername(true);
+    try {
+      console.log(userId)
+      const response: AxiosResponse = await axios.post(
+        `${url}/api/check`, { userId }
+      );
+  
+      console.log('Response:', response); // 응답 데이터 확인
+  
+      if (response.status === 201) {
+        setUsernameAvailable(true);
+      } else if (response.status === 404) {
+        setUsernameAvailable(false);
+      }
+    } catch (error) {
+      console.error('Error checking username:', error);
+      setUsernameAvailable(false); // 에러 발생 시 중복된 사용자로 처리
+    }
+  };
+
+  console.log(usernameAvailable)
+
   return (
-    <section className="w-full max-w-3xl mx-auto text-center p-5 flex flex-col justify-center w-full h-full space-y-4">
+    <section className="max-w-3xl mx-auto text-center p-5 flex flex-col justify-center w-full h-full space-y-4">
       <form onSubmit={onSubmit} className="w-211 space-y-9">
         <h1>
           <img src={'./img/logo_signup.png'} className="mx-auto" alt="logo" />
@@ -235,11 +263,27 @@ export const SignUp: FC = () => {
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {/* {userIdErr && <div className="text-red-500 text-left text-base font-normal">닉네임 형식이 잘못되었습니다.</div>} */}
+                  {userIdErr && (
+                    <div className="text-red-500 text-left text-base font-normal">
+                      닉네임 형식이 잘못되었습니다.
+                    </div>
+                  )}
+                  {usernameAvailable == false && (
+                    <div className="text-red-500 text-left text-base font-normal">
+                      중복된 사용자 ID입니다.
+                    </div>
+                  )}
+                  {usernameAvailable == true && (
+                    <div className="text-green-500 text-left text-base font-normal">
+                      사용 가능한 ID입니다.
+                    </div>
+                  )}
                 </div>
                 <div>
                   <button
                     type="button"
+                    onClick={checkUsername}
+                    disabled={checkingUsername}
                     className="w-full px-3 py-2 text-base bg-[#d75b22] text-white rounded-full"
                   >
                     중복확인
