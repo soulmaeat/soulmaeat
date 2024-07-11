@@ -17,7 +17,7 @@ import WriteTwo from './pages/WriteTwo';
 import MainPage from './pages/MainPage';
 import axios from 'axios';
 
-interface UserInfo {
+export interface UserInfo {
   age?: number;
   email?: string;
   gender?: string;
@@ -31,6 +31,7 @@ interface User {
   joindedAt?: Date;
   password?: string;
   userId?: string;
+  introduce: string;
   userPreference: {
     PreferenceList: string[];
     _id: string;
