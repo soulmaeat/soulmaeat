@@ -20,7 +20,16 @@ const Profile = ({ userData }: ProfileProps) => {
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const [currentFirepower, setCurrentFirepower] = useState(firepower);
 
-  const user = userData?.user || {};
+  const user = userData?.user || {
+    userId: '',
+    email: '',
+    gender: '',
+    age: 0,
+    introduce: '',
+    userPreference: [],
+    userSoulpay: [],
+  }; // 초기화
+  
   const keywordArr = userData?.user?.userPreference?.[0]?.PreferenceList || [];
   // console.log(userData?.user?.userPreference?.[0]?.PreferenceList);
 
