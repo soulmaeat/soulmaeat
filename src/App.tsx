@@ -101,7 +101,7 @@ function App() {
         { path: '/detail', element: <Detail userData={userData} /> },
         { path: '/intropage', element: <IntroPage /> },
         { path: '/onboard', element: <Onboarding /> },
-        { path: '/profile', element: <Profile /> },
+        { path: '/profile', element: <Profile userData={userData}/> },
         { path: '/charge', element: <Charge /> },
         { path: '/chargeconfirm', element: <ChargeConfirmation /> },
         { path: '/activity', element: <ActivityList /> },
