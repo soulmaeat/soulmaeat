@@ -65,6 +65,11 @@ export const SignUp: FC = () => {
   const [ssnErr, setSsnErr] = useState<boolean>(false);
   const [checkingUsername, setCheckingUsername] = useState<boolean>(false); // 중복확인 상태 추가
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null); // 중복확인 결과 추가
+  const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
+
+const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
+  setTermsAccepted(e.target.checked);
+};
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -166,14 +171,13 @@ export const SignUp: FC = () => {
       const responseData: User = response.data;
       console.log('Response Data:', responseData); // 응답 데이터 확인
 
-      // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단합니다.
+      // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단
       if (response.status === 404) {
         console.log('Unexpected response data:', responseData);
         alert('회원 가입 실패-아이디 중복을 체크하세요');
         return;
       }
       // userId 필드가 있으면 성공으로 간주
-      // alert('회원가입 완료. 로그인 페이지로 이동합니다');
       sessionStorage.setItem('userId', responseData.userId);
       navigate(`/onboard`);
     } catch (err: any) {
@@ -230,8 +234,6 @@ export const SignUp: FC = () => {
       setUsernameAvailable(false); // 에러 발생 시 중복된 사용자로 처리
     }
   };
-
-  console.log(usernameAvailable)
 
   return (
     <section className="max-w-3xl mx-auto text-center p-5 flex flex-col justify-center w-full h-full space-y-4">
@@ -352,19 +354,37 @@ export const SignUp: FC = () => {
               </div>
             </li>
             <li>
-              <div className="flex">
-                <input type="checkbox" id="myCheckbox" />
-                <p className="pl-3 text-xs text-black-300 text-left font-semibold">
-                  위치기반 서비스이용을 위해 이용약관에 동의합니다.
-                </p>
-              </div>
+            <div className="flex">
+              <input
+                type="checkbox"
+                id="myCheckbox"
+                onChange={onTermsChange}
+              />
+              <p className="pl-3 text-xs text-black-300 text-left font-semibold">
+                위치기반 서비스이용을 위해 이용약관에 동의합니다.
+              </p>
+            </div>
             </li>
           </ul>
         </div>
         <div>
           <button
             type="submit"
-            className="w-full py-2 mb-3 text-2xl bg-[#f5f5f5] text-[#BDBDBD] font-semibold rounded-full"
+            className={`w-full py-2 mb-3 text-2xl font-semibold rounded-full ${
+              userId &&
+              !userIdErr &&
+              user.password &&
+              !passwordErr &&
+              passwordConfirm &&
+              !passwordMatchErr &&
+              user.email &&
+              !emailErr &&
+              ssNum &&
+              ssNumSnd &&
+              termsAccepted
+                ? 'bg-[#d75b22] text-white transition-all duration-700'
+                : 'bg-[#f5f5f5] text-[#BDBDBD]'
+            }`}
           >
             다음
           </button>

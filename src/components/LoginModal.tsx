@@ -22,7 +22,6 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
 
   const onClickHandler = (e: any) => {
     e.preventDefault();
-    // alert('a')
     if (!loginUser.email) {
       alert('아이디를 입력하세요');
       if (emailRef.current) {
