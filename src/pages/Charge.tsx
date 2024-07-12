@@ -6,7 +6,6 @@ import { ModalInfo, Modals } from '../components/Modals';
 
 const Charge: React.FC = () => {
   const [selectedAmount, setSelectedAmount] = useState<number | null>(5000); // Default to 5000원
-  const [paymentMethod, setPaymentMethod] = useState<string>('credit-card');
   const [privacyAgreement, setPrivacyAgreement] = useState<boolean>(false);
   const [purchaseAgreement, setPurchaseAgreement] = useState<boolean>(false);
   const [modal, setModal] = useState<boolean>(false);
@@ -24,12 +23,11 @@ const Charge: React.FC = () => {
     },
   };
 
-  const handlePaymentMethodChange = (method: string) => {
+  const handleCharge = () => {
     if (!privacyAgreement || !purchaseAgreement) {
       setModal(true); // 모달 표시
       return;
     }
-    setPaymentMethod(method);
     navigate('/chargeconfirm', { state: { amount: selectedAmount } }); // 결제확인 페이지로 이동
   };
 
@@ -44,6 +42,8 @@ const Charge: React.FC = () => {
   const handleGoBack = () => {
     navigate(-1); // 이전 페이지로 돌아가기
   };
+
+  const isChargeButtonEnabled = privacyAgreement && purchaseAgreement;
 
   return (
     <>
@@ -110,18 +110,13 @@ const Charge: React.FC = () => {
 
           <div className="mb-4">
             <h2 className="hidden">결제 수단 선택</h2>
-            <div className="grid grid-cols-2 gap-5 text-center font-semibold">
+            <div className="grid grid-cols-1 gap-5 text-center font-semibold">
               <button
-                className={`px-4 py-2 rounded-md cursor-pointer ${paymentMethod === 'credit-card' ? 'bg-customOrange text-white' : 'border border-customOrange text-customOrange'}`}
-                onClick={() => handlePaymentMethodChange('credit-card')}
+                className={`px-4 py-2 rounded-md cursor-pointer ${isChargeButtonEnabled ? 'bg-customOrange text-white' : 'border border-customOrange text-customOrange'}`}
+                onClick={handleCharge}
+                disabled={!isChargeButtonEnabled}
               >
-                신용카드
-              </button>
-              <button
-                className={`px-4 py-2 rounded-md cursor-pointer ${paymentMethod === 'mobile' ? 'bg-customOrange text-white' : 'border border-customOrange text-customOrange'}`}
-                onClick={() => handlePaymentMethodChange('mobile')}
-              >
-                휴대폰
+                충전하기
               </button>
             </div>
           </div>

@@ -1,31 +1,42 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-interface WalletContextProps {
-  soulBalance: number;
-  updateSoulBalance: (amount: number) => void;
+interface WalletContextType {
+  userSoulpay: number;
+  setUserSoulpay: (value: number) => void;
 }
-
-const WalletContext = createContext<WalletContextProps | undefined>(undefined);
 
 interface WalletProviderProps {
   children: ReactNode;
 }
 
-export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
-  const [soulBalance, setSoulBalance] = useState(0);
+const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
-  const updateSoulBalance = (amount: number) => {
-    setSoulBalance(prevBalance => prevBalance + amount);
+export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
+  const [userSoulpay, setUserSoulpay] = useState<number>(0);
+
+  useEffect(() => {
+    const storedBalance = localStorage.getItem('userSoulpay');
+    if (storedBalance) {
+      setUserSoulpay(JSON.parse(storedBalance));
+    }
+  }, []);
+
+  const updateUserSoulpay = (amount: number) => {
+    setUserSoulpay((prevBalance) => {
+      const updatedBalance = prevBalance + amount;
+      localStorage.setItem('userSoulpay', JSON.stringify(updatedBalance));
+      return updatedBalance;
+    });
   };
 
   return (
-    <WalletContext.Provider value={{ soulBalance, updateSoulBalance }}>
+    <WalletContext.Provider value={{ userSoulpay, setUserSoulpay }}>
       {children}
     </WalletContext.Provider>
   );
 };
 
-export const useWallet = (): WalletContextProps => {
+export const useWallet = (): WalletContextType => {
   const context = useContext(WalletContext);
   if (!context) {
     throw new Error('useWallet must be used within a WalletProvider');
