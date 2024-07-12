@@ -2,7 +2,7 @@ import React from 'react';
 import { RiTimer2Fill } from 'react-icons/ri';
 import { IoPeople } from 'react-icons/io5';
 import { useNavigate } from 'react-router-dom';
-import { PostData } from '../pages/MainPage';
+import { PostData } from '../App';
 
 interface MainListProps {
   post: PostData;

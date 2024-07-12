@@ -5,66 +5,25 @@ import MainList from '../components/MainList';
 import { IoIosArrowDown } from 'react-icons/io';
 import { BiPencil } from 'react-icons/bi';
 import TabBar from '../components/TabBar';
-import axios from 'axios';
+import { PostData } from '../App';
 
 interface MainProps {
+  postData: PostData[];
   addrInfo: {
     roadAddr: string;
     numberAddr: string;
   };
 }
 
-export interface PostData {
-  title?: string;
-  addressName?: string;
-  age?: string;
-  author?: string;
-  categoryName?: string;
-  createAt?: Date;
-  description?: string;
-  gender?: string;
-  joinedPeople?: number;
-  phone?: string | undefined;
-  placeName?: string;
-  placeUrl?: string;
-  postId?: string;
-  roadAddressName?: string;
-  selectPlace?: string;
-  selectedKeyword?: { likeList: string[]; _id: string }[];
-  selectedPayment?: string;
-  x?: string;
-  y?: string;
-  _id?: string;
-}
-
-const MainPage: React.FC<MainProps> = ({ addrInfo }) => {
+const MainPage: React.FC<MainProps> = ({ addrInfo, postData }) => {
   const [currentAddr, setCurrentAddr] = useState(addrInfo);
-  const [postData, setPostData] = useState<PostData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
 
-  console.log(postData);
-
-  useEffect(() => {
-    getPosts();
-  }, []);
-
   useEffect(() => {
     topScroll();
   }, [currentAddr, location]);
-
-  const url = import.meta.env.VITE_API_URL;
-  const getPosts = async () => {
-    try {
-      const res = await axios.get(`${url}/api/posts`);
-      const result = res.data;
-      console.log(result);
-      setPostData(result.posts);
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const topScroll = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });

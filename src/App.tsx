@@ -43,6 +43,34 @@ export interface UserData {
   user: User;
 }
 
+export interface PostData {
+  title?: string;
+  addressName?: string;
+  age?: string;
+  author?: string;
+  categoryName?: string;
+  createAt?: Date;
+  description?: string;
+  gender?: string;
+  joinedPeople?: number;
+  phone?: string | undefined;
+  placeName?: string;
+  placeUrl?: string;
+  postId?: string;
+  roadAddressName?: string;
+  selectPlace?: string;
+  selectedKeyword: [
+    {
+      likeList: string[];
+      _id: string;
+    }
+  ];
+  selectedPayment?: string;
+  x?: string;
+  y?: string;
+  _id?: string;
+}
+
 declare global {
   interface Window {
     kakao: any;
@@ -64,16 +92,7 @@ function App() {
   });
 
   const [userData, setUserData] = useState<UserData | null>(null);
-
-  // 디버깅을 위해 useEffect로 localStorage 값 확인
-  // useEffect(() => {
-  //   console.log('Stored Location Info:', localStorage.getItem('locationInfo'));
-  //   console.log('Stored LatLng:', localStorage.getItem('latLng'));
-  // }, []);
-
-  useEffect(() => {
-    getUser();
-  }, []);
+  const [postData, setPostData] = useState<PostData[]>([]);
 
   const url = import.meta.env.VITE_API_URL;
   const storedUserInfo = sessionStorage.getItem('userInfo');
@@ -81,29 +100,45 @@ function App() {
     ? JSON.parse(storedUserInfo).token
     : {};
 
-  // 유저 데이터 가져오기
-  const getUser = async () => {
-    try {
-      const res = await axios.get(`${url}/api/user`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+  // 유저 및 게시글 데이터 가져오기
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [userRes, postsRes] = await Promise.all([
+          axios.get(`${url}/api/user`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+          axios.get(`${url}/api/posts`),
+        ]);
 
-      const userData = res.data;
-      setUserData(userData);
-    } catch (err) {
-      console.log(err);
-    }
-  };
+        setUserData(userRes.data);
+        setPostData(postsRes.data.posts);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [url, token]);
 
   const routes = [
     {
       element: <Layout />,
       children: [
-        { path: '/', element: <MainPage addrInfo={addrInfo} /> },
-        { path: '/detail', element: <Detail userData={userData} /> },
-        { path: '/intropage', element: <IntroPage setUserData={setUserData} /> },
+        {
+          path: '/',
+          element: <IntroPage setUserData={setUserData} />,
+        },
+        {
+          path: '/main',
+          element: <MainPage addrInfo={addrInfo} postData={postData} />,
+        },
+        {
+          path: '/detail/:id',
+          element: <Detail userData={userData} postData={postData} />,
+        },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile userData={userData} /> },
         { path: '/charge', element: <Charge /> },
