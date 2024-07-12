@@ -18,7 +18,7 @@ export const IntroPage: FC<IntroPageProps> = ({ setUserData }) => {
 
   return (
     <>
-        {loginModal && <LoginModal closeModal={closeModal}/>}
+        {loginModal && <LoginModal closeModal={closeModal} setUserData={setUserData}/>}
       <section className="justify-center w-full h-full max-w-3xl mx-auto text-center bg-[#fff7e5] p-5 flex flex-col">
         <div className="w-211">
           <p className="mt-6 my-5">
