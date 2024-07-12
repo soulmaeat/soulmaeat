@@ -2,40 +2,57 @@ import '../App.css';
 import React, { useEffect, useState } from 'react';
 import { kakao } from '../App';
 import { ModalInfo } from '../components/Modals';
-import { UserData } from '../App';
+import { UserData, PostData } from '../App';
 // components
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Modals } from '../components/Modals';
 import { IoHomeOutline } from 'react-icons/io5';
 import { IoIosArrowBack } from 'react-icons/io';
 
 interface DetailProps {
+  postData: PostData[];
   userData: UserData | null;
 }
 
-export const Detail: React.FC<DetailProps> = ({ userData }) => {
-  const location = useLocation();
-  console.log(location);
-  const likeArr = ['동성 친구만', '여러개 주문해서 나눠먹기', '음주 X'];
+export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
+  console.log(postData);
+  const { id } = useParams();
+
+  // const likeArr = ['동성 친구만', '여러개 주문해서 나눠먹기', '음주 X'];
 
   const [kakaoMap, setKakaoMap] = useState<any>(null);
   const [modal, setModal] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
   const [joinCount, setJoinCount] = useState<number>(1);
+  const [filteredPost, setFilteredPost] = useState<PostData | null>(null);
 
   const navigate = useNavigate();
   const preferenceArr = userData?.user.userPreference[0].PreferenceList || [];
+  const likeArr = filteredPost?.selectedKeyword[0].likeList || [];
+
+  console.log(likeArr);
 
   useEffect(() => {
-    loadKakaoMap();
-  }, []);
+    const filtered = postData.find((post) => post._id === id);
+    if (filtered) {
+      setFilteredPost(filtered);
+    }
+  }, [id, postData]);
+
+  useEffect(() => {
+    if (filteredPost) {
+      loadKakaoMap();
+    }
+  }, [filteredPost]);
+
+  console.log(filteredPost);
 
   const loadKakaoMap = () => {
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
         // 건대 입구역 기준
-        center: new kakao.maps.LatLng(37.54022556554232, 127.0706397574826),
+        center: new kakao.maps.LatLng(filteredPost?.x, filteredPost?.y),
         level: 2,
       };
       const map = new kakao.maps.Map(container, options);
@@ -43,7 +60,10 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
       setKakaoMap(map);
 
       // 마커가 표시될 위치입니다
-      let markerPosition = new kakao.maps.LatLng(33.450701, 126.570667);
+      let markerPosition = new kakao.maps.LatLng(
+        filteredPost?.x,
+        filteredPost?.y
+      );
 
       // 마커를 생성합니다
       let marker = new kakao.maps.Marker({
@@ -53,6 +73,25 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
       // 마커가 지도 위에 표시되도록 설정합니다
       marker.setMap(map);
       map.setZoomable(false);
+
+      let iwContent = `
+        <div style="padding:5px;">
+            ${filteredPost?.selectPlace} 
+            <br>
+            <a href=${filteredPost?.placeUrl} style="color:#D75B22" target="_blank">
+              사이트 보기
+            </a>
+          </div>`,
+        iwPosition = new kakao.maps.LatLng(33.450701, 126.570667); //인포윈도우 표시 위치입니다
+
+      // 인포윈도우를 생성합니다
+      let infowindow = new kakao.maps.InfoWindow({
+        position: iwPosition,
+        content: iwContent,
+      });
+
+      // 마커 위에 인포윈도우를 표시합니다. 두번째 파라미터인 marker를 넣어주지 않으면 지도 위에 표시됩니다
+      infowindow.open(map, marker);
     }
   };
 
@@ -120,7 +159,7 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
                 <span className="text-[#D75B22] font-semibold">19시</span> 마감
               </span>
               <span className="bg-[#E6A88B] rounded-3xl px-2 py-1 text-white text-[13px]">
-                미리 결제
+                {filteredPost?.selectedPayment}
               </span>
               <span
                 className={`${
@@ -132,20 +171,15 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
             </div>
             <div className="flex justify-between py-3 border-b border-[#ededed]">
               <div className="flex items-center gap-2">
-                <img
-                  className="w-10 h-10 rounded-full bg-slate-300"
-                  src="/profile-image.png"
-                />
+                <img className="w-10 h-10" src="/img/profile-image.png" />
                 <div>
-                  <h1 className="font-semibold">
-                    {userData && userData?.user?.userId}
-                  </h1>
+                  <h1 className="font-semibold">{filteredPost?.author}</h1>
                   <div>
                     <span className="text-sm text-[#666] mr-1">
-                      {userData && userData?.user?.gender}
+                      {filteredPost?.gender}
                     </span>
                     <span className="text-sm text-[#666]">
-                      {userData && userData?.user?.age}대
+                      {filteredPost?.age}
                     </span>
                   </div>
                 </div>
@@ -165,11 +199,10 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
             </div>
             <div className="py-3 border-b border-[#ededed]">
               <h2 className="text-lg font-semibold mb-2.5">
-                피자 드실분 3분 선착순
+                {filteredPost?.title}
               </h2>
-              <p>피자 드시러 가실분 3분 모집합니다.</p>
+              <p>{filteredPost?.description}</p>
             </div>
-            <div>영수증 미리보기</div>
             <div className="mt-3">
               <h2 className="font-semibold text-[#666] mb-1">성향 키워드</h2>
               <div className="leading-8">
@@ -199,8 +232,11 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
             <div className="mt-3">
               <h2 className="font-semibold text-[#666] mb-1">위치 정보</h2>
               <div>
+                <p className="mb-1 text-sm text-[#ccc]">
+                  {filteredPost?.categoryName}
+                </p>
                 <h2 className="text font-semibold mb-1 text-lg">
-                  동묘 가라지 피자
+                  {filteredPost?.selectPlace}
                 </h2>
                 <div className="flex">
                   <img
@@ -209,8 +245,7 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
                     alt="위치 정보 아이콘"
                   />
                   <div className="mb-3">
-                    <p>서울 종로구 종로54길 17-10 1층</p>
-                    <p>동묘앞역 6번 출구에서 188m</p>
+                    <p>{filteredPost?.placeName}</p>
                   </div>
                 </div>
                 <div
@@ -232,6 +267,11 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
                 <span>돼지력만랩</span>
                 <span>돼지력만랩</span>
               </div>
+            </div>
+            <div className="mt-3 border-t border-[#ededed]">
+              <button className="mt-3 mb-1 py-1 px-2.5 font-semibold text-[#666] border border-[#666] rounded-3xl">
+                영수증 미리보기
+              </button>
             </div>
           </div>
           <nav className="fixed bottom-0 flex w-full max-w-3xl h-16 border-t bg-white z-20">
