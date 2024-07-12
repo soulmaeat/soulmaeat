@@ -39,7 +39,7 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
 
     const loginSuccessful = await isLogin();
     if (loginSuccessful) {
-      navigate('/');
+      navigate('/main');
     }
   };
 
