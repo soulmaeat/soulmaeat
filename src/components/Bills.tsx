@@ -1,4 +1,7 @@
 import {FC, useState, useEffect} from 'react'
+import { IoReload } from "react-icons/io5";
+import { IoMdCloseCircle } from "react-icons/io";
+
 
 interface BillsInfo{
   name: string;
@@ -33,6 +36,7 @@ export const Bills:FC<BillsProps> = ({joinedPeople, onUpdateBills})=>{
   const [allTotal, setAllTotal] = useState<string>('0');
   const [balance, setBalance] = useState<string>('0');
   const [priceChk, setPriceChk] = useState<boolean>(false);
+  const [activeDel, setActiveDel] = useState<boolean>(true);
 
   // 글쓰기 영수증인지 확인 / 게시글 영수증 : false
   const [isWrite, setIsWrite] = useState<boolean>(true);
@@ -117,20 +121,57 @@ export const Bills:FC<BillsProps> = ({joinedPeople, onUpdateBills})=>{
     }
   }
 
+  const resetBills = ()=>{
+    const bool = confirm('영수증을 전부 비우시겠습니까?');
+    if(bool){
+      if(!billsList.length){
+        alert('영수증이 비어있습니다.');
+      }else{
+        setBillsList([]);
+        setAllTotal('0');
+        setBalance('0');
+      }
+    }
+  }
+
+  const deleteBills = (item:BillsInfo, i:number)=>{
+    const bool = confirm(`${item.name}를 삭제하시겠습니까?`);
+    if(bool){
+      billsList.splice(i, 1); // i번째부터 1개 삭제
+      setBillsList([...billsList]); // 배열을 복사해서 새로운 배열
+      const total = (Number(deleteComma(allTotal)) - Number(deleteComma(item.total))).toLocaleString();
+      const balance = (Number(total) / joinedPeople).toFixed(0);
+      setAllTotal(total);
+      setBalance(balance);
+    }
+  }
+
+  const showDelBtn = ()=>{
+    setActiveDel(!activeDel);
+  }
+
   return (
-    <div className="mb-14 w-full flex-col items-center  max-w-xl">
-      <div className='px-4 w-full'>
+    <div className="mb-14 w-full flex-col items-center max-w-xl">
+      <div className='w-full px-4'>
+        {isWrite&&
+        <div className='flex justify-between items-center border-b border-black pb-4'>
+          <div>
+            <h2 className='text-xl font-bold'>모바일 영수증</h2>
+            <p>정확한 가격을 기재해주세요.</p>
+          </div>
+          {/* {billsList.length>0&&
+          <button className='rounded-2xl text-white text-bold p-2 bg-customOrange whitespace-nowrap h-[40px]' onClick={showDelBtn}>삭제하기</button>
+          } */}
+        </div>
+        }
+        {!isWrite&&
+        <div>
           <h2 className='text-xl font-bold'>모바일 영수증</h2>
-          {isWrite &&
-            <p className='border-b border-black pb-4'>정확한 가격을 기재해주세요.</p>
-          }
-          {!isWrite &&
-          <>
-            <p className='border-b border-black pb-4'>장소</p>
-            <p className='border-b border-black pb-4'>주소</p>
-            {/* 모집인원 수 */}
-          </>
-          }
+          <p>장소</p>
+          <p className='border-b border-black pb-4'>주소</p>
+        </div>
+        }
+        {/* 모집인원 수 */}
       </div>
       <div className='mb-2 mt-3 px-4'>
           <div className='flex justify-between font-bold mt-3'>
@@ -144,9 +185,18 @@ export const Bills:FC<BillsProps> = ({joinedPeople, onUpdateBills})=>{
             billsList.map((bill, index)=>(
               <li className='flex justify-between mt-3 text-sm' key={index}>
                 <p className='w-[25%] text-start'>{bill.bills.name}</p>
-                <p className='w-[25%] text-center'><span>{bill.bills.price}</span>원</p>
+                <p className='w-[25%] text-center whitespace-nowrap'><span>{bill.bills.price}</span>원</p>
                 <p className='w-[25%] text-center'>{bill.bills.quantity}</p>
-                <p className='w-[25%] text-end'>{bill.bills.total}원</p>
+                <p className='w-[25%] text-end relative whitespace-nowrap'>{bill.bills.total}원
+                  {isWrite&&
+                  <span className='absolute -right-5 top-[0px] cursor-pointer'
+                  onClick={()=>{deleteBills(bill.bills, index)}}
+                  >{activeDel&&
+                    <IoMdCloseCircle size={20} className='text-customOrange' />
+                  }
+                  </span>
+                  }
+                </p>
               </li>
               ))
             }
@@ -159,7 +209,7 @@ export const Bills:FC<BillsProps> = ({joinedPeople, onUpdateBills})=>{
         </div>
         <div className='flex justify-between'>
             <h3 className='font-[600] text-lg'>결제 금액</h3>
-            <p className='text-end text-red-500 font-bold'>{balance}원</p>
+            <p className='text-end text-customOrange font-bold'>{balance}원</p>
         </div>
       </div>
       <div>
@@ -193,7 +243,10 @@ export const Bills:FC<BillsProps> = ({joinedPeople, onUpdateBills})=>{
           value={totalPrice+' 원'}
           />
         </span>
-        <button type='submit' onClick={addBillsList} className='block rounded-[40px] whitespace-nowrap bg-customOrange text-white w-[60px] h-[32px]'>추가</button>
+        <div className='w-full flex justify-end'>
+          <IoReload size={32} onClick={resetBills} className='bg-gray-200 p-1 rounded-full active:bg-gray-300 mr-2 cursor-pointer' />
+          <button type='submit' onClick={addBillsList} className='block rounded-[40px] whitespace-nowrap bg-customOrange text-white w-[60px] h-[32px]'>추가</button>
+        </div>
       </div>
     </div>
   )
