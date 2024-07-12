@@ -47,12 +47,9 @@ const Profile = ({ userData }: ProfileProps) => {
     }
   };
 
-
   const storedUserInfo = sessionStorage.getItem('userInfo');
-  const token: UserInfo = storedUserInfo
-    ? JSON.parse(storedUserInfo).token
-    : {};
-    
+  const token: UserInfo = storedUserInfo ? JSON.parse(storedUserInfo).token : {};
+
   const handleSaveClick = async () => {
     try {
       const response = await axios.put(
@@ -97,6 +94,7 @@ const Profile = ({ userData }: ProfileProps) => {
       <div className="flex items-center mb-4">
         <IoIosArrowBack size={35}/>
         <h1 className="mx-2">마이페이지</h1>
+        {/* 로그아웃 */}
       </div>
 
       <div className="flex items-center mb-4">

@@ -135,3 +135,4 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
     </section>
   );
 };
+
