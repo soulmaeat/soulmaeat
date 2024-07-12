@@ -191,7 +191,15 @@ export const SignUp: FC = () => {
   };
 
   const onChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setUser({ ...user, [name]: value });
+  
+    if (name === 'email') {
+      let isEmailValid: boolean =
+        /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(value);
+      
+      setEmailErr(!isEmailValid);
+    }
   };
 
   const onChangePasswordConfirm = (e: ChangeEvent<HTMLInputElement>): void => {
