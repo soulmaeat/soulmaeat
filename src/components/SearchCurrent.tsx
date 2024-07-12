@@ -138,7 +138,12 @@ export const SearchCurrent:FC<LocationProps> = ({closeModal, appear})=>{
                 className={`text-start px-2 pt-2 cursor-pointer whitespace-nowrap bg-${index===currentPlaceIndex&& 'gray-200'}`}>
                   <p className=' text-ellipsis overflow-hidden'>{place.address_name}</p>
                   <p className='text-base text-gray-500 font-thin border-b border-gray-300 pb-2 text-ellipsis overflow-hidden'>
-                    {place.road_address_name}
+                    {place.road_address_name&&
+                      place.road_address_name
+                    }
+                    {!place.road_address_name&&
+                      '도로명 주소가 없습니다.'
+                    }
                     {/* {' ' + place.place_name} */}
                     </p>
                 </li>

@@ -193,7 +193,9 @@ export const Location:FC = () => {
 
   const sendLocation = () => {
     // navigate('/main');
-    location.href = '/';
+    localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
+    localStorage.setItem('latLng', JSON.stringify(latLng));
+    location.href = '/main';
   }
   return (
     <div className='max-w-3xl h-full mx-auto text-center text-xl size-full overflow-hidden' >
@@ -252,7 +254,7 @@ export const Location:FC = () => {
         <div className='size-4/5 max-h-12 mt-6  mb-4'>
           <button 
           className={`size-full rounded-full ${isActive? 'bg-customOrange text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'} font-bold text-base`}
-          onClick={()=>{if(isActive)sendLocation}}
+          onClick={()=>{if(isActive)sendLocation()}}
           >
             {isActive? '이 위치로 주소 등록' : '위치 정보를 가져오는 중입니다.'}
           </button>
