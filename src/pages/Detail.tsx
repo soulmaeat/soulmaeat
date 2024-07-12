@@ -4,7 +4,7 @@ import { kakao } from '../App';
 import { ModalInfo } from '../components/Modals';
 import { UserData } from '../App';
 // components
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Modals } from '../components/Modals';
 import { IoHomeOutline } from 'react-icons/io5';
 import { IoIosArrowBack } from 'react-icons/io';
@@ -14,6 +14,8 @@ interface DetailProps {
 }
 
 export const Detail: React.FC<DetailProps> = ({ userData }) => {
+  const location = useLocation();
+  console.log(location);
   const likeArr = ['동성 친구만', '여러개 주문해서 나눠먹기', '음주 X'];
 
   const [kakaoMap, setKakaoMap] = useState<any>(null);
