@@ -41,15 +41,16 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
       setKakaoMap(map);
 
       // 마커가 표시될 위치입니다
-      var markerPosition = new kakao.maps.LatLng(33.450701, 126.570667);
+      let markerPosition = new kakao.maps.LatLng(33.450701, 126.570667);
 
       // 마커를 생성합니다
-      var marker = new kakao.maps.Marker({
+      let marker = new kakao.maps.Marker({
         position: markerPosition,
       });
 
       // 마커가 지도 위에 표시되도록 설정합니다
       marker.setMap(map);
+      map.setZoomable(false);
     }
   };
 
@@ -109,11 +110,7 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
                 size={35}
               />
             </div>
-            <img
-              className="w-full max-h-72"
-              src="/profile-image.png"
-              alt="fake"
-            />
+            <img className="w-full max-h-72" src="/fake_img.png" alt="fake" />
           </div>
           <div className="px-2.5 detail_calc pb-[83px]">
             <div className="flex gap-1.5 pt-3">
@@ -133,7 +130,10 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
             </div>
             <div className="flex justify-between py-3 border-b border-[#ededed]">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-slate-300"></div>
+                <img
+                  className="w-10 h-10 rounded-full bg-slate-300"
+                  src="/profile-image.png"
+                />
                 <div>
                   <h1 className="font-semibold">
                     {userData && userData?.user?.userId}
@@ -150,7 +150,7 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
               </div>
               <div className="flex flex-col items-center gap-2">
                 <div className="flex items-center gap-1">
-                  <img src="/fire_icon.png" alt="" />
+                  <img src="/fire_icon.png" alt="화력 아이콘" />
                   <span className="text-sm">36.5</span>
                   <span className="text-sm">같밥 화력</span>
                 </div>
@@ -167,6 +167,7 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
               </h2>
               <p>피자 드시러 가실분 3분 모집합니다.</p>
             </div>
+            <div>영수증 미리보기</div>
             <div className="mt-3">
               <h2 className="font-semibold text-[#666] mb-1">성향 키워드</h2>
               <div className="leading-8">
@@ -218,6 +219,16 @@ export const Detail: React.FC<DetailProps> = ({ userData }) => {
                     borderRadius: '10px',
                   }}
                 ></div>
+              </div>
+            </div>
+            <div className="mt-3 border-t border-[#ededed]">
+              <h2 className="mt-3 font-semibold text-[#666] mb-1">
+                현재 참가자
+              </h2>
+              <div>
+                <span>돼지력만랩</span>
+                <span>돼지력만랩</span>
+                <span>돼지력만랩</span>
               </div>
             </div>
           </div>
