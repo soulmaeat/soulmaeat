@@ -21,14 +21,6 @@ export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
     }
   }, []);
 
-  const updateUserSoulpay = (amount: number) => {
-    setUserSoulpay((prevBalance) => {
-      const updatedBalance = prevBalance + amount;
-      localStorage.setItem('userSoulpay', JSON.stringify(updatedBalance));
-      return updatedBalance;
-    });
-  };
-
   return (
     <WalletContext.Provider value={{ userSoulpay, setUserSoulpay }}>
       {children}
