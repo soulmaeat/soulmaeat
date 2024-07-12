@@ -99,15 +99,6 @@ export const SignUp: FC = () => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    let isValid = true;
-
-    let isuserId: boolean = /^([a-zA-Z])[a-zA-Z0-9!_-]{3,7}$/.test(user.userId);
-    if (!isuserId) {
-      setuserIdErr(true);
-    } else {
-      setuserIdErr(false);
-    }
-
     if (user.password !== undefined) {
       let ispassword: boolean = /^[\w!_-]{4,8}$/.test(user.password);
       if (!ispassword) {
@@ -221,7 +212,6 @@ export const SignUp: FC = () => {
 
   const userId =  user.userId;
   const checkUsername = async () => {
-    // setCheckingUsername(true);
     try {
       console.log(userId)
       const response: AxiosResponse = await axios.post(
@@ -263,11 +253,6 @@ export const SignUp: FC = () => {
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {userIdErr && (
-                    <div className="text-red-500 text-left text-base font-normal">
-                      닉네임 형식이 잘못되었습니다.
-                    </div>
-                  )}
                   {usernameAvailable == false && (
                     <div className="text-red-500 text-left text-base font-normal">
                       중복된 사용자 ID입니다.
