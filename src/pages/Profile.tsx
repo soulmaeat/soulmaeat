@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
-import TabBar from '../components/TabBar';
 import { useWallet } from '../contexts/WalletContext';
 import { UserData, UserInfo } from '../App';
+import TabBar from '../components/TabBar';
 import axios from 'axios';
 
 interface ProfileProps {
@@ -15,24 +15,18 @@ interface Post {
 }
 
 const Profile: React.FC<ProfileProps> = ({ userData }) => {
+  const navigate = useNavigate();
   const [firepower, setFirepower] = useState(36.5);
   const [currentFirepower, setCurrentFirepower] = useState(firepower);
-  const navigate = useNavigate();
-  const [userSoulpay, setUserSoulpay] = useState<number>(0);
-  const {
-    setUserSoulpay: setLocalUserSoulpay,
-    setUserSoulpay: setGlobalUserSoulpay,
-  } = useWallet();
-  const [introduce, setIntroduce] = useState(userData?.user?.introduce || '');
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState('');
-  const textAreaRef = useRef<HTMLTextAreaElement>(null);
-  const keywordArr = userData?.user?.userPreference?.[0]?.PreferenceList || [];
-  // console.log(userData?.user?.userPreference?.[0]?.PreferenceList);
-  const [activities, setActivities] = useState<Post[]>([]);
+  const { userSoulpay, setUserSoulpay } = useWallet(); // WalletContext에서 소울페이 관련 상태 및 함수 가져오기
+  const [introduce, setIntroduce] = useState(userData?.user?.introduce || ''); // 사용자 소개글 상태 관리
+  const [isEditing, setIsEditing] = useState(false); // 수정 모드 상태 관리
+  const [error, setError] = useState(''); // 오류 메시지 상태 관리
+  const textAreaRef = useRef<HTMLTextAreaElement>(null); // 텍스트 에어리어 Ref 객체
+  const keywordArr = userData?.user?.userPreference?.[0]?.PreferenceList || []; // 사용자 성향 키워드 배열
+  const [activities, setActivities] = useState<Post[]>([]); // 사용자 활동 내역 상태 관리
 
-  const [isLoading, setIsLoading] = useState(true); // 데이터 로딩 상태
-
+  // 사용자 객체 초기화
   const user = userData?.user || {
     userId: '',
     email: '',
@@ -40,64 +34,33 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
     age: 0,
     introduce: '',
     userPreference: [],
-    userSoulpay: [],
+    userSoulpay: Number(localStorage.getItem(`userSoulpay_${userData?.user?.userId}`)) || 0,
   }; // 초기화
 
+  // 로컬 스토리지에서 저장된 소개글 불러오기
   useEffect(() => {
     const savedIntroduce = localStorage.getItem('introduce');
     if (savedIntroduce) {
       setIntroduce(savedIntroduce);
     }
-
-    const storedSoulpay = localStorage.getItem('userSoulpay');
-    if (storedSoulpay) {
-      try {
-        const parsedSoulpay = JSON.parse(storedSoulpay);
-        setUserSoulpay(parsedSoulpay);
-      } catch (error) {
-        console.error('Failed to parse userSoulpay from localStorage', error);
-      }
-    }
   }, []);
 
+  // 소울페이 값이 변경될 때마다 로컬 스토리지에 저장
   useEffect(() => {
-    const fetchUserSoulpay = async () => {
-      try {
-        const storedUserInfo = sessionStorage.getItem('userInfo');
-        const token: UserInfo = storedUserInfo
-          ? JSON.parse(storedUserInfo).token
-          : {};
-        if (!token) {
-          console.error('Token not found in sessionStorage');
-          return;
-        }
+    localStorage.setItem(`userSoulpay_${user.userId}`, String(userSoulpay));
+  }, [userSoulpay, user.userId]);
 
-        const response = await axios.get('/api/user/soulpay', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+  // 사용자 소개글 입력 시 처리하는 함수
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (e.target.value.length <= 50) {
+      setIntroduce(e.target.value);
+      setError('');
+    } else {
+      setError('글자 수는 50자 이내여야 합니다.');
+    }
+  };
 
-        const { soulpay } = response.data;
-        if (typeof soulpay === 'number' && !isNaN(soulpay)) {
-          setUserSoulpay(soulpay);
-          setLocalUserSoulpay(soulpay); // 로컬 상태에 저장
-          localStorage.setItem('userSoulpay', soulpay.toString()); // 로컬 스토리지에 저장
-          setGlobalUserSoulpay(soulpay); // 데이터에 반영
-        } else {
-          console.error('Invalid soulpay value:', soulpay);
-        }
-      } catch (error) {
-        console.error('Failed to fetch userSoulpay:', error);
-        // 사용자에게 에러 메시지 표시 또는 처리
-      } finally {
-        setIsLoading(false); // 로딩 상태 업데이트
-      }
-    };
-
-    fetchUserSoulpay();
-  }, [setLocalUserSoulpay, setGlobalUserSoulpay]);
-
+  // 수정 버튼 클릭 시 호출되는 함수
   const handleEditingClick = () => {
     setIsEditing(true);
     if (textAreaRef.current) {
@@ -105,12 +68,12 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
     }
   };
 
+  // 저장 버튼 클릭 시 호출되는 함수
   const handleSaveClick = async () => {
     try {
       const storedUserInfo = sessionStorage.getItem('userInfo');
-      const token: UserInfo = storedUserInfo
-        ? JSON.parse(storedUserInfo).token
-        : {};
+      const token: UserInfo = storedUserInfo ? JSON.parse(storedUserInfo).token : {};
+
       if (!token) {
         console.error('Token not found in sessionStorage');
         return;
@@ -118,7 +81,7 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
 
       const response = await axios.put(
         'http://localhost:3000/api/edit',
-        { email: userData?.user?.email, introduce },
+        { email: userData?.user?.email, introduce, userSoulpay },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -132,54 +95,8 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
     }
     setIsEditing(false);
   };
-
-  const updateUserSoulpayInSessionStorage = (soulpay: number) => {
-    try {
-      let storedUserInfo = sessionStorage.getItem('userInfo');
-      let userInfo;
-      if (!storedUserInfo) {
-        userInfo = {
-          user: {
-            userSoulpay: soulpay,
-          }
-        };
-      } else {
-        userInfo = JSON.parse(storedUserInfo);
-        userInfo.user = userInfo.user || {}; // Ensure user property exists
-        userInfo.user.userSoulpay = soulpay;
-      }
-      sessionStorage.setItem('userInfo', JSON.stringify(userInfo));
-    } catch (error) {
-      console.error('Failed to update userSoulpay in sessionStorage:', error);
-      // Handle error appropriately
-    }
-  };  
-
-  useEffect(() => {
-    updateUserSoulpayInSessionStorage(userSoulpay);
-  }, [userSoulpay]);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    if (e.target.value.length <= 50) {
-      setIntroduce(e.target.value);
-      setError('');
-    } else {
-      setError('글자 수는 50자 이내여야 합니다.');
-    }
-  };
-
-  useEffect(() => {
-    if (isEditing && textAreaRef.current) {
-      textAreaRef.current.focus();
-    }
-  }, [isEditing]);
-
-  useEffect(() => {
-    if (isEditing && textAreaRef.current) {
-      textAreaRef.current.focus();
-    }
-  }, [isEditing]);
-
+  
+  // 활동 내역 불러오기
   useEffect(() => {
     getPost();
   }, []);
@@ -188,36 +105,23 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
     const url = import.meta.env.VITE_API_URL;
     try {
       const response = await axios.get<{ posts: Post[] }>(`${url}/api/posts`);
-      // console.log(response.data.posts);
       const userPosts = response.data.posts.filter(
         (post) => post.author === user.userId
       );
-      userPosts.forEach((post) => {
-        if (typeof post.author === 'string') {
-          const authorPosts = response.data.posts.filter(
-            (p: Post) => p.author === post.author
-          );
-          // console.log(post.author);
-          // console.log(`${post.author}의 활동내역: ${authorPosts.length}`);
-        }
-      });
-      setActivities(userPosts); // 필터링된 포스트를 상태로 설정
+      setActivities(userPosts);
     } catch (err) {
       console.warn(err);
     }
   };
 
-  // 로그아웃 클릭 이벤트 핸들러 함수
+  // 로그아웃 처리 함수
   const handleLogout = () => {
-    // 여기에 로그아웃 처리 로직을 추가합니다.
-    // 예를 들어, 세션 삭제, 사용자 정보 초기화 등을 수행할 수 있습니다.
-    console.log('로그아웃 버튼 클릭됨');
-    // 예시: localStorage나 sessionStorage에서 데이터 삭제
-    localStorage.removeItem('userInfo');
-    // 로그아웃 후 로그인 페이지로 리다이렉트
-    navigate('/');
+    localStorage.clear(); // 로컬 스토리지 클리어
+    sessionStorage.removeItem('userInfo'); // 세션 스토리지 클리어
+    navigate('/'); // 로그아웃 후 홈 페이지로 이동
   };
-
+  
+  // 화력 관련 변수
   const maxFirepower = 100;
   const firepowerPercentage = (currentFirepower / maxFirepower) * 100;
 
@@ -321,9 +225,7 @@ const Profile: React.FC<ProfileProps> = ({ userData }) => {
       <div className="flex flex-col mt-8 mb-4 p-4 border border-gray-300 rounded-md">
         <div className="flex justify-between mb-2">
           <h2 className="font-semibold">소울페이</h2>
-          <p className="mb-2 font-semibold">
-            {userSoulpay ? userSoulpay.toLocaleString() : '0'} 소울
-          </p>
+          <p className="mb-2 font-medium">{userSoulpay}</p>
         </div>
         <div className="self-end">
           <button
