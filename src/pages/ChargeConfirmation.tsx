@@ -8,12 +8,14 @@ const ChargeConfirmation: React.FC = () => {
   const location = useLocation();
   const { state } = location;
   const amount = state?.amount;
-  const { updateSoulBalance } = useWallet();
+  const { updateSoulBalance, soulBalance } = useWallet();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleConfirm = () => {
     if (amount) {
+      const updatedBalance = soulBalance + amount;
       updateSoulBalance(amount);
+      localStorage.setItem('soulBalance', JSON.stringify(updatedBalance));
     }
     navigate('/profile');
   };
@@ -29,7 +31,7 @@ const ChargeConfirmation: React.FC = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [amount, handleConfirm]);
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen p-5">

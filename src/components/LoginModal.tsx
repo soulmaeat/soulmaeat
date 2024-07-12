@@ -129,3 +129,4 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal }) => {
     </section>
   );
 };
+

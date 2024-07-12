@@ -1,4 +1,3 @@
-// Charge.tsx
 import React, { useState } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
