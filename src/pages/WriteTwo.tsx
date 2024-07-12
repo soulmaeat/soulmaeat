@@ -2,7 +2,7 @@ import { useState, useEffect, FC } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
-import { Bills } from '../components/Bills';
+import { Bills, BillsData } from '../components/Bills';
 import { UserData } from '../App';
 import axios from 'axios';
 
@@ -14,7 +14,6 @@ interface DetailData {
   author: any | null;
   age: any | null;
   gender: any | null;
-  postId: number;
   title: string;
   description: string;
   selectPlace: string;
@@ -29,13 +28,7 @@ interface DetailData {
   x: number;
   y: number;
   joinedPeople: number;
-}
-
-interface BillsProps {
-   name: string;
-   price: number;
-   quantity: number;
-   total: number;
+  bills: BillsData;
 }
 
 interface WriteProps { // props로 받아올 user 정보
@@ -53,8 +46,15 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    const [keywordLen, setKeywordLen] = useState<number>(0);
    const navigate = useNavigate();
    const location = useLocation();
-   const [postId, setPostId] = useState<number>(0);
    const { selectPlace } = location.state || {};
+
+   // Bills.tsx에서 사용하는 state
+   const [allBills, setAllBills] = useState<BillsData>();
+   const handleUpdateBills = (bills: BillsData) => {
+      setAllBills(bills);
+   };
+
+   
    // 모바일 영수증이 식당 값이 바뀌지 않는 이상, localstorage에 저장해두고,
    // 실수로 새로고침을 해도 값이 유지되도록 하기
    const [menuList, setMenuList] = useState<any[]>([]);
@@ -84,7 +84,6 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
         author: user?.userId,
         age: user?.age,
         gender: user?.gender,
-        postId,
         title,
         description,
         selectedKeyword: [{ likeList: selectedKeywords }],
@@ -99,13 +98,11 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
         x: selectPlace.y,
         y: selectPlace.x,
         joinedPeople,
+        bills: allBills || { billsList: [], allTotal: '0', balance: '0' },
     };
     // console.log(data);
     try {
       alert('글 작성이 완료되었습니다.');
-      setPostId((id)=>id+1);
-      console.log(postId);
-      
       const url = import.meta.env.VITE_API_URL;
       const response = await axios.post(`${url}/api/post`, data);
       console.log(response);
@@ -120,10 +117,10 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
       return;
      }else{
        setSelectedKeywords((prev) => {
-         if(isActive){
+         if(isActive){ // 선택 시
            setKeywordLen(selectedKeywords.length+1)
            return [...prev, title];
-          }else{
+          }else{ // 선택 해제 시
             setKeywordLen(selectedKeywords.length-1)
            return prev.filter((item) => item !== title);
          }
@@ -215,7 +212,7 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
          </div>
          {selectedPayment==='미리 결제'&&
          <div className='flex justify-center'>
-           <Bills />
+           <Bills joinedPeople={joinedPeople} onUpdateBills={handleUpdateBills} />
          </div>
          }
          <div className='mb-[56px] w-full text-center'>
