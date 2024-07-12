@@ -67,9 +67,9 @@ export const SignUp: FC = () => {
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null); // 중복확인 결과 추가
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
 
-const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
-  setTermsAccepted(e.target.checked);
-};
+  const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setTermsAccepted(e.target.checked);
+  };
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,15 +104,19 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
   const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    let isValid = true;
+
     if (user.password !== undefined) {
       let ispassword: boolean = /^[\w!_-]{4,8}$/.test(user.password);
       if (!ispassword) {
         setpasswordErr(true);
+        isValid = false;
       } else {
         setpasswordErr(false);
       }
     } else {
       setpasswordErr(true);
+      isValid = false;
     }
 
     if (user.email !== undefined) {
@@ -122,32 +126,36 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
         );
       if (!isEmail) {
         setEmailErr(true);
-        return false;
+        isValid = false;
       } else {
         setEmailErr(false);
       }
     } else {
       setEmailErr(true);
+      isValid = false;
     }
 
     if (user.password !== passwordConfirm) {
       setpasswordMatchErr(true);
-      return false;
+      isValid = false;
     } else {
       setpasswordMatchErr(false);
     }
 
     if (!ssNum || !ssNumSnd) {
       setSsnErr(true);
-      return false;
+      isValid = false;
     } else {
       setSsnErr(false);
     }
 
-    try {
-      await requestJoin();
-    } catch (err) {
-      console.error('Error during sign up:', err);
+    if (isValid && termsAccepted) {
+      try {
+        await requestJoin();
+        navigate(`/onboard`); // 유효성 검사 성공 시 온보드로 이동
+      } catch (err) {
+        console.error('Error during sign up:', err);
+      }
     }
   };
 
@@ -162,8 +170,6 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
   const url = import.meta.env.VITE_API_URL;
   const requestJoin = async () => {
     try {
-      
-
       const response: AxiosResponse<User> = await axios.post(
         `${url}/api/register`,
         registerUser
@@ -171,15 +177,13 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
       const responseData: User = response.data;
       console.log('Response Data:', responseData); // 응답 데이터 확인
 
-      // 여기서 응답 데이터의 특정 필드를 이용해 성공 여부를 판단
       if (response.status === 404) {
         console.log('Unexpected response data:', responseData);
         alert('회원 가입 실패-아이디 중복을 체크하세요');
         return;
       }
-      // userId 필드가 있으면 성공으로 간주
+
       sessionStorage.setItem('userId', responseData.userId);
-      navigate(`/onboard`);
     } catch (err: any) {
       console.error('Error response:', err.response); // 에러 메시지 출력
       alert('Error: ' + JSON.stringify(err.response));
@@ -214,16 +218,16 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
     }
   };
 
-  const userId =  user.userId;
+  const userId = user.userId;
   const checkUsername = async () => {
     try {
       console.log(userId)
       const response: AxiosResponse = await axios.post(
         `${url}/api/check`, { userId }
       );
-  
+
       console.log('Response:', response); // 응답 데이터 확인
-  
+
       if (response.status === 201) {
         setUsernameAvailable(true);
       } else if (response.status === 404) {
@@ -255,12 +259,12 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
                     className="w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {usernameAvailable == false && (
+                  {usernameAvailable === false && (
                     <div className="text-red-500 text-left text-base font-normal">
                       중복된 사용자 ID입니다.
                     </div>
                   )}
-                  {usernameAvailable == true && (
+                  {usernameAvailable === true && (
                     <div className="text-green-500 text-left text-base font-normal">
                       사용 가능한 ID입니다.
                     </div>
@@ -354,16 +358,16 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
               </div>
             </li>
             <li>
-            <div className="flex">
-              <input
-                type="checkbox"
-                id="myCheckbox"
-                onChange={onTermsChange}
-              />
-              <p className="pl-3 text-xs text-black-300 text-left font-semibold">
-                위치기반 서비스이용을 위해 이용약관에 동의합니다.
-              </p>
-            </div>
+              <div className="flex">
+                <input
+                  type="checkbox"
+                  id="myCheckbox"
+                  onChange={onTermsChange}
+                />
+                <p className="pl-3 text-xs text-black-300 text-left font-semibold">
+                  위치기반 서비스이용을 위해 이용약관에 동의합니다.
+                </p>
+              </div>
             </li>
           </ul>
         </div>
@@ -371,7 +375,7 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
           <button
             type="submit"
             className={`w-full py-2 mb-3 text-2xl font-semibold rounded-full ${
-              userId &&
+              user.userId &&
               !userIdErr &&
               user.password &&
               !passwordErr &&
@@ -385,6 +389,19 @@ const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
                 ? 'bg-[#d75b22] text-white transition-all duration-700'
                 : 'bg-[#f5f5f5] text-[#BDBDBD]'
             }`}
+            disabled={!(
+              user.userId &&
+              !userIdErr &&
+              user.password &&
+              !passwordErr &&
+              passwordConfirm &&
+              !passwordMatchErr &&
+              user.email &&
+              !emailErr &&
+              ssNum &&
+              ssNumSnd &&
+              termsAccepted
+            )}
           >
             다음
           </button>
