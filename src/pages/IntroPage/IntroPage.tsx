@@ -2,10 +2,14 @@ import { FC, useState } from 'react';
 import { LoginModal } from '../../components/LoginModal';
 import { SignUp } from './SignUp';
 import { useNavigate } from 'react-router-dom';
+import { UserData } from '../../App';
 
-export const IntroPage: FC = () => {
+interface IntroPageProps {
+  setUserData: (data: UserData) => void;
+}
+
+export const IntroPage: FC<IntroPageProps> = ({ setUserData }) => {
   const [loginModal, setLoginModal] = useState<boolean>(false);
-  // const [signUp, setSignUp] = useState<boolean>(false);
   const navigate = useNavigate();
 
   const closeModal = () => {

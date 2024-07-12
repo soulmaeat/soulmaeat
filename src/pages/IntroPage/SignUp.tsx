@@ -182,7 +182,7 @@ export const SignUp: FC = () => {
         return;
       }
       // userId 필드가 있으면 성공으로 간주
-      alert('회원가입 완료. 로그인 페이지로 이동합니다');
+      // alert('회원가입 완료. 로그인 페이지로 이동합니다');
       sessionStorage.setItem('userId', responseData.userId);
       navigate(`/onboard`);
     } catch (err: any) {
