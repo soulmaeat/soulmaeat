@@ -1,7 +1,7 @@
 import { FC, useState, useRef, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { UserData } from '../App'; 
+import { UserData } from '../App';  // UserData 타입을 import
 
 interface LoginModalProps {
   closeModal: () => void;
@@ -22,7 +22,6 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
 
   const onClickHandler = (e: any) => {
     e.preventDefault();
-    // alert('a')
     if (!loginUser.email) {
       alert('아이디를 입력하세요');
       if (emailRef.current) {
@@ -48,32 +47,29 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
         password: loginUser.passwd,
       });
 
-      console.log(loginUser.email);
-
       if (res.status === 200) {
         const data = res.data;
-        console.log(data);
         sessionStorage.setItem('userInfo', JSON.stringify(data));
+        
+        // 유저 데이터를 가져와서 setUserData를 호출합니다.
+        const userRes = await axios.get(`http://localhost:3000/api/user`, {
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+          },
+        });
+        setUserData(userRes.data);
 
-          // 유저 데이터를 가져와서 setUserData를 호출합니다.
-          const userRes = await axios.get(`http://localhost:3000/api/user`, {
-            headers: {
-              Authorization: `Bearer ${data.token}`,
-            },
-          });
-          setUserData(userRes.data);
-  
-          navigate('/');
-        } else {
-          console.log('에러 발생');
-          sessionStorage.clear();
-          sessionStorage.removeItem('userInfo');
-          setLoginUser({ email: '', passwd: '' });
-        }
-      } catch (err) {
-        console.log(err);
+        navigate('/');
+      } else {
+        console.log('에러 발생');
+        sessionStorage.clear();
+        sessionStorage.removeItem('userInfo');
+        setLoginUser({ email: '', passwd: '' });
       }
-    };
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <section className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
@@ -116,17 +112,12 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
             ></input>
             <div className="w-full border-b border-gray-400"></div>
           </dd>
-          <dd className="text-right text-l  text-gray-700 py-1">
-            {/* <button>비밀번호 찾기</button> */}
-          </dd>
+          <dd className="text-right text-l  text-gray-700 py-1"></dd>
         </dl>
         <div>
           <button
             type="submit"
-            onClick={(e)=>{
-              onClickHandler(e);
-              navigate('/');
-            }}
+            onClick={onClickHandler}
             className="w-full py-2 mb-3 text-2xl bg-[#d75b22] text-white font-semibold rounded-full"
           >
             로그인

@@ -99,7 +99,7 @@ function App() {
       children: [
         { path: '/', element: <MainPage addrInfo={addrInfo} /> },
         { path: '/detail', element: <Detail userData={userData} /> },
-        { path: '/intropage', element: <IntroPage /> },
+        { path: '/intropage', element: <IntroPage setUserData={setUserData} /> },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile /> },
         { path: '/charge', element: <Charge /> },
