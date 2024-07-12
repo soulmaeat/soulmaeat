@@ -1,4 +1,3 @@
-// src/pages/ChargeConfirmation.tsx
 import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useWallet } from '../contexts/WalletContext';
@@ -8,14 +7,14 @@ const ChargeConfirmation: React.FC = () => {
   const location = useLocation();
   const { state } = location;
   const amount = state?.amount;
-  const { updateSoulBalance, soulBalance } = useWallet();
+  const { setUserSoulpay, userSoulpay } = useWallet();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleConfirm = () => {
     if (amount) {
-      const updatedBalance = soulBalance + amount;
-      updateSoulBalance(amount);
-      localStorage.setItem('soulBalance', JSON.stringify(updatedBalance));
+      const updatedBalance = userSoulpay + amount;
+      setUserSoulpay(updatedBalance);
+      localStorage.setItem('userSoulpay', JSON.stringify(updatedBalance));
     }
     navigate('/profile');
   };
@@ -52,7 +51,7 @@ const ChargeConfirmation: React.FC = () => {
           </div>
         </div>
       </div>
-      <button 
+      <button
         ref={buttonRef}
         className="w-full py-3 bg-customOrange text-white text-xl rounded-full"
         onClick={handleConfirm}
