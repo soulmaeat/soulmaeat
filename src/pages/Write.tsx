@@ -1,6 +1,7 @@
 import {ChangeEvent, FC, useEffect, useState, FormEvent} from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { IoIosArrowBack, IoIosSearch } from "react-icons/io";
+import { NavBar } from '../components/NavBar';
+import { IoIosSearch } from "react-icons/io";
 import { IoLocationOutline, IoCloseCircle } from "react-icons/io5";
 
 export interface latLngProps {
@@ -63,6 +64,7 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
   
   const changeHandler = (e:ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
+    setMsg('');
     if(e.target.value){
       setDisplayStatus('block');
     }else{
@@ -77,12 +79,11 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
       setMsg('키워드를 입력해주세요.');
       return;
     }else{
-      // 검색 선택, 오류 메세지 초기화
+      // 검색 선택 초기화
       setSelectedPlaceIndex(-1);
       setIsButtonSelected(false);
       setIsButtonActive(false);
       topScroll();
-      setMsg('');
     }
     // 장소검색 객체를 통해 키워드로 장소검색을 요청 => 사용자가 검색어를 입력하고 검색 버튼을 눌렀을 때 호출
     placeService.keywordSearch( keyword, keywordSearchCB, { 
@@ -135,11 +136,8 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
   return (
     <form
     className='min-h-screen max-w-3xl mx-auto text-center size-full relative'>
-      <div className="fixed bg-white pt-[1.25rem] top-0 w-full max-w-3xl">
-        <div className="flex items-center mb-[22px]">
-            <IoIosArrowBack onClick={()=>{navigate('/')}} className='cursor-pointer' size={35} />
-            <h1 className="mx-2">글 작성하기</h1>
-         </div>
+      <div className="fixed bg-white top-0 w-full max-w-3xl">
+        <NavBar title='글 작성하기' />
         <div className='flex flex-col items-center'>
           <h2 className='text-start px-1 text-2xl font-bold w-[90%]'>어디서 먹을까요?</h2>
           <div className="flex justify-around w-[96%] mt-5 items-center mx-2">
@@ -166,10 +164,11 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
               <IoIosSearch className='cursor-pointer' size={35} />
             </button>
           </div>
-          <p className='text-sm my-2 pl-6 text-red-500 text-start w-full'>{msg}</p>
+          <p className='text-xs my-2 pl-6 text-red-500 text-start w-full'>{msg}</p>
         </div>
       </div>
-        <div className='mt-[208px] size-full flex flex-col items-center'>
+      <div className='h-[208px]'></div>
+        <div className='size-full flex flex-col items-center'>
           <ul className='h-full w-full'>
             {places&&
               places.place.map((place:any, index:number) => (
@@ -216,10 +215,12 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
               </li>
               ))
             }
+            <li className='h-[128px]'></li>
           </ul>
         </div>
         <div className="fixed bottom-10 btn_cont w-full max-w-3xl">
           <button onClick={()=>{
+            if(!isButtonActive) return;
             navigate('/writetwo', {state: {selectPlace: selectPlace}});
           }}
           className={

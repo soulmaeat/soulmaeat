@@ -1,16 +1,17 @@
 import {FC, useState, useRef, useEffect} from 'react';
 import {Link} from 'react-router-dom';
+import { SearchCurrent } from '../components/SearchCurrent';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoReload } from "react-icons/io5";
 import { Loading } from '../components/Loading';
 import { Badge } from '../components/Badge';
 
-interface Location{
+export interface Location{
   numberAddr?: string;
   roadAddr?: string;
   adminAddr?: string;
 }
-interface LatLng{
+export interface LatLng{
   lat: number;
   lng: number;
 }
@@ -21,6 +22,7 @@ export const Location:FC = () => {
   const [marker, setMarker] = useState<any | null>(null);
   const [kakaoMap, setKakaoMap] = useState<any | null>(null);
   const [geocoder, setGeocoder] = useState<any | null>(null); 
+  const [isShowModal, setIsShowModal] = useState<boolean>(false);
   const [locationInfo, setLocationInfo] = useState<Location>(() => {
     const storedLocationInfo = localStorage.getItem('locationInfo');
     return storedLocationInfo ? JSON.parse(storedLocationInfo) : {};
@@ -29,6 +31,7 @@ export const Location:FC = () => {
     const storedLatLng = localStorage.getItem('latLng');
     return storedLatLng ? JSON.parse(storedLatLng) : {lat: 37.56100278, lng: 126.9996417};
   });
+  const [isActive, setIsActive] = useState<boolean>(false);
   const badgeNum = '지번',
         badgeRoad = '도로명',
         badgeAdmin = '행정동';
@@ -147,6 +150,7 @@ export const Location:FC = () => {
         }
       });
       setIsLoading(false);
+      setIsActive(true);
     }else{
       setTimeout(() => {
         if(isLoading&&!locationInfo&&!latLng){ 
@@ -245,12 +249,17 @@ export const Location:FC = () => {
           </>
           }
         </div>
-        <button 
-        className='rounded-full size-4/5 max-h-12 bg-customOrange text-white font-bold text-base mt-8'
-        onClick={sendLocation}
-        >
-          이 위치로 주소 등록
-        </button>
+        <div className='size-4/5 max-h-12 mt-6  mb-4'>
+          <button 
+          className={`size-full rounded-full ${isActive? 'bg-customOrange text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'} font-bold text-base`}
+          onClick={()=>{if(isActive)sendLocation}}
+          >
+            {isActive? '이 위치로 주소 등록' : '위치 정보를 가져오는 중입니다.'}
+          </button>
+          <p onClick={()=>{setIsShowModal(true)}}
+          className='underline underline-offset-4 text-sm mt-1 text-gray-500 cursor-pointer'>* 직접 검색하고 싶어요</p>
+          <SearchCurrent closeModal={setIsShowModal} appear={isShowModal} />
+        </div>
       </div>
     </div>
   );
