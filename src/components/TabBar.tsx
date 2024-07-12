@@ -1,10 +1,13 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { FaHome } from "react-icons/fa";
+import { FaLocationDot } from "react-icons/fa6";
+import { IoIosHappy } from "react-icons/io";
 
 const tabs = [
-  { name: 'home', path: '/', src: '/img/flowbite_home-solid.png' },
-  { name: 'location', path: '/location', src: '/img/majesticons_map-marker.png' },
-  { name: 'mypage', path: '/profile', src: '/img/Vector.png' },
+  { name: 'Home', path: '/', icon: <FaHome size="1.5em" /> },
+  { name: 'Location', path: '/location', icon: <FaLocationDot size="1.5em" /> },
+  { name: 'My Page', path: '/profile', icon: <IoIosHappy size="1.5em" /> },
 ];
 
 const TabBar: React.FC = () => {
@@ -20,10 +23,12 @@ const TabBar: React.FC = () => {
               onClick={() => navigate(tab.path)}
               className="block py-4 w-full focus:outline-none"
             >
-              <img src={tab.src} alt={tab.name} className="mx-auto mb-1" />
-              <span className={`${location.pathname === tab.path ? 'text-customOrange font-bold text-xs' : 'text-gray-300 text-xs'}`}>
-                {tab.name}
-              </span>
+              <div className={`flex flex-col items-center ${location.pathname === tab.path ? 'text-customOrange' : 'text-gray-300'}`}>
+                {tab.icon}
+                <span className={`${location.pathname === tab.path ? 'text-customOrange font-bold text-xs' : 'text-gray-300 text-xs'}`}>
+                  {tab.name}
+                </span>
+              </div>
             </button>
           </li>
         ))}
