@@ -22,6 +22,7 @@ export interface UserInfo {
   email?: string;
   gender?: string;
   token?: string | null;
+  userSoulpay?: number; // 추가
 }
 
 interface User {
