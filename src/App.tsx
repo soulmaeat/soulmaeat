@@ -143,7 +143,7 @@ function App() {
         { path: '/profile', element: <Profile userData={userData} /> },
         { path: '/charge', element: <Charge /> },
         { path: '/chargeconfirm', element: <ChargeConfirmation /> },
-        { path: '/activity', element: <ActivityList /> },
+        { path: '/activity', element: <ActivityList userData={userData}/> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
         { path: '/write', element: <Write latLngInfo={latLngInfo} /> },
