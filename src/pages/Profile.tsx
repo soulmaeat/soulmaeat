@@ -6,7 +6,7 @@ import { UserData, UserInfo } from '../App';
 import { NavBar } from '../components/NavBar';
 import TabBar from '../components/TabBar';
 import axios from 'axios';
-
+// 테스트
 interface ProfileProps {
   userData: UserData | null;
 }
