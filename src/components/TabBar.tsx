@@ -5,7 +5,7 @@ import { FaLocationDot } from "react-icons/fa6";
 import { IoIosHappy } from "react-icons/io";
 
 const tabs = [
-  { name: 'Home', path: '/', icon: <FaHome size="1.5em" /> },
+  { name: 'Home', path: '/main', icon: <FaHome size="1.5em" /> },
   { name: 'Location', path: '/location', icon: <FaLocationDot size="1.5em" /> },
   { name: 'My Page', path: '/profile', icon: <IoIosHappy size="1.5em" /> },
 ];
