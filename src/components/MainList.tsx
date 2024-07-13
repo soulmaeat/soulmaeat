@@ -38,8 +38,8 @@ const MainList: React.FC<MainListProps> = ({ post }) => {
               1h
             </span>
             <span className="flex items-center">
-              <IoPeople color="#D75B22" className="mr-[4px]" />
-              {post.joinedPeople}/{5}
+              <IoPeople color="#D75B22" className="mr-[4px]" />1 /{' '}
+              {post.joinedPeople}
             </span>
           </div>
         </div>

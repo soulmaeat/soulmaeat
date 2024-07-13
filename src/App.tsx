@@ -18,13 +18,11 @@ import MainPage from './pages/MainPage';
 import axios from 'axios';
 
 export interface UserInfo {
-  age?: number;
-  email?: string;
-  gender?: string;
+  userId?: string | null;
   token?: string | null;
 }
 
-interface User {
+export interface User {
   age?: number;
   email?: string;
   gender?: string;
@@ -52,7 +50,7 @@ export interface PostData {
   createAt?: Date;
   description?: string;
   gender?: string;
-  joinedPeople?: number;
+  joinedPeople?: number | null;
   phone?: string | undefined;
   placeName?: string;
   placeUrl?: string;
@@ -69,6 +67,8 @@ export interface PostData {
   x?: string;
   y?: string;
   _id?: string;
+  joinCount: number;
+  joinUser: string[];
 }
 
 declare global {
@@ -137,7 +137,13 @@ function App() {
         },
         {
           path: '/detail/:id',
-          element: <Detail userData={userData} postData={postData} />,
+          element: (
+            <Detail
+              userData={userData}
+              postData={postData}
+              storedUserInfo={storedUserInfo}
+            />
+          ),
         },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile userData={userData} /> },
