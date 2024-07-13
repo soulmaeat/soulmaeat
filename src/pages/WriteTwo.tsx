@@ -113,7 +113,7 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
       const url = import.meta.env.VITE_API_URL;
       const response = await axios.post(`${url}/api/post`, data);
       console.log(response);
-      navigate('/');
+      navigate('/main');
     } catch (error) {
         console.error(error);
     }
