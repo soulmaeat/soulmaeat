@@ -25,28 +25,31 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
   const [joinModal, setJoinModal] = useState<boolean | undefined>(false);
   const [filteredPost, setFilteredPost] = useState<PostData | null>(null);
-  const [joinCount, setJoinCount] = useState<number>(() => {
-    // 초기값 설정 시 로컬스토리지에서 값 불러오기
-    const savedJoinCount = localStorage.getItem('joinCount');
-    return savedJoinCount ? parseInt(savedJoinCount, 10) : 1;
-  });
+  const [joinCount, setJoinCount] = useState<number>(1);
 
   const navigate = useNavigate();
   const preferenceArr = userData?.user.userPreference[0].PreferenceList || [];
   const likeArr = filteredPost?.selectedKeyword[0].likeList || [];
 
-  console.log(filteredPost);
+  console.log(postData);
 
   useEffect(() => {
     const filtered = postData.find((post) => post._id === id);
+    console.log(filtered);
+
     if (filtered) {
       setFilteredPost(filtered);
     }
+    console.log(filteredPost);
   }, [id, postData]);
 
   useEffect(() => {
     if (filteredPost) {
       loadKakaoMap();
+    }
+
+    if (filteredPost) {
+      setJoinCount(filteredPost?.joinCount);
     }
   }, [filteredPost]);
 
@@ -102,34 +105,17 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     setConfirmModal(true);
   };
 
-  const joinCounter = () => {
-    setJoinCount((prevCount) => {
-      const newCount = prevCount + 1;
-      localStorage.setItem('joinCount', newCount.toString()); // 로컬스토리지에 저장
-      return newCount;
-    });
-  };
-
-  // joinCount 상태가 변경될 때마다 로컬스토리지에 저장
-  useEffect(() => {
-    localStorage.setItem('joinCount', joinCount.toString());
-  }, [joinCount]);
-
   const storedUserInfo = sessionStorage.getItem('userInfo');
   const userId: UserInfo = storedUserInfo
     ? JSON.parse(storedUserInfo).userId
     : {};
-
-  useEffect(() => {
-    addJoin();
-  }, [joinCount]);
 
   const url = import.meta.env.VITE_API_URL;
   const addJoin = async () => {
     try {
       await axios.put(`${url}/api/join`, {
         postId: filteredPost?.postId,
-        joinCount: joinCount,
+        joinCount: filteredPost && filteredPost?.joinCount + 1,
         joinUser: [userId],
       });
     } catch (err) {
@@ -150,7 +136,7 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
   };
 
   const JoinModalInfo: ModalInfo = {
-    userName: '돼지력만랩',
+    userName: `${filteredPost?.author}`,
     content: '님과 같이 먹을래요?',
     payment: 22000,
     balance: 11000,
@@ -170,7 +156,8 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     rbtntext: '확인',
     ronclick: () => {
       setConfirmModal(false);
-      joinCounter();
+      addJoin();
+      setJoinCount((prevState) => prevState + 1);
     },
   };
 
@@ -321,9 +308,9 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
                 현재 참가자
               </h2>
               <div>
-                <span>돼지력만랩</span>
-                <span>돼지력만랩</span>
-                <span>돼지력만랩</span>
+                {filteredPost?.joinUser.map((joinUser) => (
+                  <span className="font-semibold mr-1.5">{joinUser}</span>
+                ))}
               </div>
             </div>
             <div className="mt-3 border-t border-[#ededed]">
