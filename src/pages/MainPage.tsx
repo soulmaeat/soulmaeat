@@ -15,15 +15,39 @@ interface MainProps {
   };
 }
 
+interface SelectAddrInfo {
+  address_name: string;
+  category_group_code: string;
+  category_group_name: string;
+  category_name: string;
+  distance: string;
+  id: string;
+  phone: string;
+  place_name: string;
+  place_url: string;
+  road_address_name: string;
+  x: string;
+  y: string;
+}
+
 const MainPage: React.FC<MainProps> = ({ addrInfo, postData }) => {
   const [currentAddr, setCurrentAddr] = useState(addrInfo);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const location = useLocation();
 
-  // 현재 유저의 위치 주소의 포스트만 필터링
-  const filteredAddress = postData.filter(
-    (post) => post.placeName === addrInfo.numberAddr
+  const currentUserAddr: SelectAddrInfo | null = JSON.parse(
+    localStorage.getItem('selectedPlace') || 'null'
+  );
+
+  // 도와 구 추출
+  const addressName = currentUserAddr?.address_name;
+  const match = addressName?.match(/^(\S+ \S+)/);
+  const seoulDistrict = match ? match[1] : '';
+
+  // 현재 유저의 위치 주소의 도와 구가 포함된 포스트만 필터링
+  const filteredAddress = postData.filter((post) =>
+    post?.placeName?.includes(seoulDistrict)
   );
 
   useEffect(() => {
