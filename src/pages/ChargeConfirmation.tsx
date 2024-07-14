@@ -1,8 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import { useWallet } from '../contexts/WalletContext';
+import { UserData } from '../App';
 
-const ChargeConfirmation: React.FC = () => {
+interface ChargeProps {
+  userData: UserData | null;
+}
+
+const ChargeConfirmation: React.FC<ChargeProps> = ({ userData }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { state } = location;
@@ -10,13 +16,43 @@ const ChargeConfirmation: React.FC = () => {
   const { setUserSoulpay, userSoulpay } = useWallet();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (amount) {
-      const updatedBalance = userSoulpay + amount;
-      setUserSoulpay(updatedBalance);
-      localStorage.setItem('userSoulpay', JSON.stringify(updatedBalance));
+      try {
+        const storedUserInfo = sessionStorage.getItem('userInfo');
+        const token = storedUserInfo ? JSON.parse(storedUserInfo).token : {};
+
+        if (!token) {
+          console.error('세션 스토리지에서 토큰을 찾을 수 없습니다.');
+          return;
+        }
+
+        // 서버에 충전 요청 보내기
+        const response = await axios.put(
+          'http://localhost:3000/api/charge',
+          { email: userData?.user?.email, soulpay: amount },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const { soulpay } = response.data;
+        const updatedBalance = userSoulpay + soulpay; // 현재 소울페이에 충전된 금액을 합산
+        setUserSoulpay(updatedBalance); // WalletContext에서 제공하는 setUserSoulpay 함수를 사용하여 소울페이 업데이트
+        localStorage.setItem('userSoulpay', updatedBalance.toString()); // localStorage에 저장
+
+        // 세션 스토리지에도 토큰 정보와 함께 저장
+        if (storedUserInfo) {
+          const userInfo = JSON.parse(storedUserInfo);
+          sessionStorage.setItem('userInfo', JSON.stringify({
+            ...userInfo,
+            userSoulpay: updatedBalance,
+          }));
+        }
+
+        navigate('/profile');
+      } catch (error) {
+        console.error('소울페이 충전 중 오류 발생:', error);
+      }
     }
-    navigate('/profile');
   };
 
   useEffect(() => {
@@ -60,6 +96,6 @@ const ChargeConfirmation: React.FC = () => {
       </button>
     </div>
   );
-}
+};
 
 export default ChargeConfirmation;
