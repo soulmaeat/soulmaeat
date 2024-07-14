@@ -20,7 +20,7 @@ import axios from 'axios';
 export interface UserInfo {
   userId?: string | null;
   token?: string | null;
-  userSoulpay?: number; // 추가
+  userSoulpay: number[]; // 추가
 }
 
 export interface User {
@@ -35,7 +35,7 @@ export interface User {
     PreferenceList: string[];
     _id: string;
   }[];
-  userSoulpay?: number;
+  userSoulpay: number[];
 }
 
 export interface UserData {
@@ -147,9 +147,9 @@ function App() {
           ),
         },
         { path: '/onboard', element: <Onboarding /> },
-        { path: '/profile', element: <Profile userData={userData} /> },
+        { path: '/profile', element: <Profile userData={userData} postData={postData} /> },
         { path: '/charge', element: <Charge /> },
-        { path: '/chargeconfirm', element: <ChargeConfirmation /> },
+        { path: '/chargeconfirm', element: <ChargeConfirmation userData={userData} /> },
         { path: '/activity', element: <ActivityList /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
