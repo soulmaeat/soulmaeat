@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
 import TabBar from '../components/TabBar';
-import { useWallet } from '../contexts/WalletContext';
+import { useWallet } from '../contexts/SoulpayContext';
 import { UserData, UserInfo } from '../App';
 import axios from 'axios';
 

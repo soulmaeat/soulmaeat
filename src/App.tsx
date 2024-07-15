@@ -8,7 +8,7 @@ import { SignUp } from './pages/IntroPage/SignUp';
 import Profile from './pages/Profile';
 import Charge from './pages/Charge';
 import ChargeConfirmation from './pages/ChargeConfirmation';
-import { WalletProvider } from './contexts/WalletContext';
+import { SoulpayProvider } from './contexts/SoulpayContext';
 import { Location } from './pages/Location';
 import Onboarding from './pages/Onboarding';
 import Write from './pages/Write';
@@ -20,7 +20,7 @@ import axios from 'axios';
 export interface UserInfo {
   userId?: string | null;
   token?: string | null;
-  userSoulpay: number[]; // 추가
+  soulpay: number; // 추가
 }
 
 export interface User {
@@ -35,7 +35,7 @@ export interface User {
     PreferenceList: string[];
     _id: string;
   }[];
-  userSoulpay: number[];
+  soulpay: number;
 }
 
 export interface UserData {
@@ -148,8 +148,8 @@ function App() {
         },
         { path: '/onboard', element: <Onboarding /> },
         { path: '/profile', element: <Profile userData={userData} postData={postData} /> },
-        { path: '/charge', element: <Charge /> },
-        { path: '/chargeconfirm', element: <ChargeConfirmation userData={userData} /> },
+        { path: '/charge', element: <Charge userData={userData} /> },
+        { path: '/chargeconfirm', element: <ChargeConfirmation /> },
         { path: '/activity', element: <ActivityList /> },
         { path: '/location', element: <Location /> },
         { path: '/signup', element: <SignUp /> },
@@ -161,9 +161,9 @@ function App() {
 
   const router = createBrowserRouter(routes);
   return (
-    <WalletProvider>
+    <SoulpayProvider>
       <RouterProvider router={router} />
-    </WalletProvider>
+    </SoulpayProvider>
   );
 }
 

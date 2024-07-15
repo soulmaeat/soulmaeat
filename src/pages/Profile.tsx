@@ -2,47 +2,49 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { IoIosArrowForward } from 'react-icons/io';
 import { useNavigate } from 'react-router-dom';
-import { useWallet } from '../contexts/WalletContext';
-import { UserData, PostData } from '../App'; // PostData 추가
+import { UserData, PostData } from '../App';
 import { NavBar } from '../components/NavBar';
 import TabBar from '../components/TabBar';
 import axios from 'axios';
+import { useSoulpay } from '../contexts/SoulpayContext'; // Context 사용 추가
 
 interface ProfileProps {
   userData: UserData | null;
-  postData: PostData[]; // postData 추가
+  postData: PostData[];
 }
 
 const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
   const navigate = useNavigate();
-  const { userSoulpay, setUserSoulpay } = useWallet(); // WalletContext에서 userSoulpay 상태와 업데이트 함수를 호출
-  const [introduce, setIntroduce] = useState(userData?.user?.introduce || '');
-  const [isEditing, setIsEditing] = useState(false);
-  const [error, setError] = useState('');
+  const [introduce, setIntroduce] = useState<string>(''); // 사용자 소개글
+  const [isEditing, setIsEditing] = useState<boolean>(false); // 소개글 수정 모드 여부
+  const [error, setError] = useState<string>(''); // 소개글 길이 초과 에러
+  const { soulpay, setSoulpay } = useSoulpay(); // Context에서 soulpay 상태 및 업데이트 함수 가져오기
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
   const keywordArr = userData?.user?.userPreference?.[0]?.PreferenceList || [];
-  const [activities, setActivities] = useState<PostData[]>([]); // Post 타입을 PostData로 변경
+  const [activities, setActivities] = useState<PostData[]>([]);
   const [isLogin, setIsLogin] = useState<boolean>(false);
-  
-  console.log(userData?.user?.userSoulpay);
-  
+
   useEffect(() => {
-    // 로컬 스토리지에서 저장된 소개글 불러오기
-    const savedIntroduce = localStorage.getItem(`introduce_${userData?.user?.userId}`);
-    if (savedIntroduce) {
-      setIntroduce(savedIntroduce);
-    }
-    // userData가 변경될 때 사용자의 소개글, 활동 내역, 소울페이 최신화
-    if (userData?.user?.userId) { // 사용자 데이터가 존재할 때만 데이터를 가져오기
+    // 프로필 정보 초기화 (로컬 스토리지에서 데이터 불러오기)
+    const savedIntroduce = localStorage.getItem('introduce') || '';
+    setIntroduce(savedIntroduce);
+
+    // userData가 변경될 때 사용자의 소개글, 활동 내역,소 소울페이 값 최신화
+    if (userData?.user?.userId) {
       setIsLogin(true);
       setIntroduce(userData?.user?.introduce || '');
-      fetchActivities(userData.user.userId); // 사용자 ID를 파라미터로 전달
-      fetchUserSoulpay(userData.user.userId);
-      fetchUserSoulpay(userData.user.userId);
+      fetchActivities(userData.user.userId);
+      setSoulpay(userData.user.soulpay || 0); // Context의 소울페이 업데이트
     } else {
       setIsLogin(false);
     }
-  }, [userData]);
+  }, [userData, setSoulpay]);
+
+  // 충전 후 소울페이 업데이트 함수
+  // const handleChargeUpdate = (chargedAmount: number) => {
+  //   const updatedSoulpay = soulpay + chargedAmount;
+  //   setSoulpay(updatedSoulpay); // Context에서 소울페이 업데이트
+  // };  
 
   // 로그아웃 처리 함수
   const handleLogout = () => {
@@ -75,18 +77,6 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
   const maxFirepower = 100;
   const firepowerPercentage = (currentFirepower / maxFirepower) * 100;
 
-  // 사용자의 소울페이 정보 가져오는 함수
-  const fetchUserSoulpay = async (userId: string) => {
-    try {
-      const response = await axios.get<{ soulpay: number }>(`http://localhost:3000/api/charge?userId=${userId}`);
-      const { soulpay } = response.data;
-      setUserSoulpay(soulpay);
-      localStorage.setItem('userSoulpay', soulpay.toString());
-    } catch (error) {
-      console.error('사용자 소울페이 가져오기 오류:', error);
-    }
-  };
-
   // 소개글 입력 변경 처리
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= 50) {
@@ -94,7 +84,7 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
       setError('');
       localStorage.setItem(`introduce_${userData?.user?.userId}`, e.target.value);
     } else {
-      setError('글자 수는 50자 이내여야 합니다.');
+      setError('소개는 최대 50자까지 입력할 수 있습니다.');
     }
   };
 
@@ -118,7 +108,7 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
       }
 
       await axios.put(
-        'http://localhost:3000/api/edit',
+        'http://localhost:3000/api/edit', // 데이터베이스 업데이트 API 엔드포인트
         { email: userData?.user?.email, introduce },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -245,7 +235,7 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
               <div className="flex justify-between mb-2">
                 <h2 className="font-semibold">소울페이</h2>
                 <p className="mb-2 font-medium">
-                {userSoulpay.toLocaleString()}
+                {soulpay.toLocaleString()}
                 </p>
               </div>
               <div className="self-end">
