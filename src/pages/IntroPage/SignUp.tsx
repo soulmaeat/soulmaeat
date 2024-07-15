@@ -66,7 +66,8 @@ export const SignUp: FC = () => {
   const [checkingUsername, setCheckingUsername] = useState<boolean>(false); // 중복확인 상태 추가
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null); // 중복확인 결과 추가
   const [termsAccepted, setTermsAccepted] = useState<boolean>(false);
-
+  const [years, setYears] = useState<number>(0)//주민 년도
+  const [ssNumSndErr, setSsNumSndErr] = useState<boolean>(false);
   const onTermsChange = (e: ChangeEvent<HTMLInputElement>) => {
     setTermsAccepted(e.target.checked);
   };
@@ -90,7 +91,7 @@ export const SignUp: FC = () => {
         } else {
           ageGroup = '60대 이상';
         }
-        console.log(`나이: ${age}, 연령: ${ageGroup}, 성별: ${gender}`);
+        // console.log(`나이: ${age}, 연령: ${ageGroup}, 성별: ${gender}`);
 
         setUser((prevUser) => ({ ...prevUser, gender, age, ageGroup }));
 
@@ -107,7 +108,8 @@ export const SignUp: FC = () => {
     let isValid = true;
 
     if (user.password !== undefined) {
-      let ispassword: boolean = /^[\w!_-]{4,8}$/.test(user.password);
+      let ispassword: boolean = 
+      /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,8}$/.test(user.password);
       if (!ispassword) {
         setpasswordErr(true);
         isValid = false;
@@ -152,7 +154,7 @@ export const SignUp: FC = () => {
     if (isValid && termsAccepted) {
       try {
         await requestJoin();
-        navigate(`/onboard`); // 유효성 검사 성공 시 온보드로 이동
+        navigate(`/onboard`);
       } catch (err) {
         console.error('Error during sign up:', err);
       }
@@ -175,7 +177,7 @@ export const SignUp: FC = () => {
         registerUser
       );
       const responseData: User = response.data;
-      console.log('Response Data:', responseData); // 응답 데이터 확인
+      console.log('Response Data:', responseData);
 
       if (response.status === 404) {
         console.log('Unexpected response data:', responseData);
@@ -185,7 +187,7 @@ export const SignUp: FC = () => {
 
       sessionStorage.setItem('userId', responseData.userId);
     } catch (err: any) {
-      console.error('Error response:', err.response); // 에러 메시지 출력
+      console.error('Error response:', err.response);
       alert('Error: ' + JSON.stringify(err.response));
     }
   };
@@ -195,10 +197,20 @@ export const SignUp: FC = () => {
     setUser({ ...user, [name]: value });
   
     if (name === 'email') {
-      let isEmailValid: boolean =
-        /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(value);
+      console.log(name, value);
       
+      let isEmailValid: boolean =
+      /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(value);
       setEmailErr(!isEmailValid);
+    }
+    if (name == 'password'){
+      console.log(name, value);
+      let isPasswdValid: boolean = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,8}$/.test(value);
+      if(isPasswdValid){
+        setpasswordErr(false);
+      }else{
+        setpasswordErr(true)
+      }
     }
   };
 
@@ -212,17 +224,40 @@ export const SignUp: FC = () => {
   };
 
   const onChangeSsNum = (e: ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    if (value.length <= 6) {
-      setSsNum(value);
-      console.log(value);
+    const {value} = e.target;
+    setYears(parseInt(value.slice(0, 2), 10));
+    const month = parseInt(value.slice(2, 4), 10);
+    const day = parseInt(value.slice(4, 6), 10);
+    const date = new Date(years, month - 1, day);
+    
+    if(value.length <= 6){ // 6자 제한
+      setSsNum(value)
+    }
+    // 월 유효성
+    if(month < 1 || month > 12){
+      setSsnErr(true)
+    }else{
+      setSsnErr(false)
+    }
+    // 일 유효성
+    if(date.getFullYear() % 100 !== years || date.getMonth() + 1 !== month || date.getDate() !== day){
+      setSsnErr(true)
+    }else{
+      setSsnErr(false)
     }
   };
 
   const onChangeSsNumSnd = (e: ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value;
-    if (value.length <= 1) {
+    const now = new Date();
+    const currYear = String(now.getFullYear()).slice(-2);
+    if (value.length<=1&&/^[1-4]?$/.test(value)) {
       setSsNumSnd(value);
+      if(years>Number(currYear)&&Number(value)>2){
+        setSsNumSndErr(true);
+      }else setSsNumSndErr(false);
+    }else if (value === '') { 
+      setSsNumSnd(''); // 값이 비어있을 경우 초기화합니다.
     }
   };
 
@@ -234,7 +269,7 @@ export const SignUp: FC = () => {
         `${url}/api/check`, { userId }
       );
 
-      console.log('Response:', response); // 응답 데이터 확인
+      console.log('Response:', response);
 
       if (response.status === 201) {
         setUsernameAvailable(true);
@@ -243,7 +278,7 @@ export const SignUp: FC = () => {
       }
     } catch (error) {
       console.error('Error checking username:', error);
-      setUsernameAvailable(false); // 에러 발생 시 중복된 사용자로 처리
+      setUsernameAvailable(false);
     }
   };
 
@@ -351,16 +386,20 @@ export const SignUp: FC = () => {
                     className="no-spinner w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
+                  {ssnErr||ssNumSndErr&&
+                    <div className='text-red-500 text-left text-base font-normal'>주민번호 형식이 맞지않습니다.</div>
+                  }
                 </div>
-                <div className="w-1/2">
+                <div className="w-1/2 relative">
                   <input
                     type="number"
                     onChange={onChangeSsNumSnd}
                     value={ssNumSnd}
-                    placeholder="1 * * * * * *"
+                    placeholder="1"
                     name="ssNumSnd"
                     className="no-spinner w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
+                  <div className='absolute top-3 left-6 text-xl text-gray-800 text-left font-semibold'>* * * * * *</div>
                   <div className="w-full border-b border-gray-400"></div>
                 </div>
               </div>
@@ -393,7 +432,9 @@ export const SignUp: FC = () => {
               !emailErr &&
               ssNum &&
               ssNumSnd &&
-              termsAccepted
+              termsAccepted &&
+              !ssnErr &&
+              !ssNumSndErr
                 ? 'bg-[#d75b22] text-white transition-all duration-700'
                 : 'bg-[#f5f5f5] text-[#BDBDBD]'
             }`}
@@ -408,7 +449,9 @@ export const SignUp: FC = () => {
               !emailErr &&
               ssNum &&
               ssNumSnd &&
-              termsAccepted
+              termsAccepted &&
+              ssnErr &&
+              ssNumSndErr
             )}
           >
             다음
