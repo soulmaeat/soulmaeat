@@ -97,6 +97,10 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
 
    useEffect(()=>{ // 새로고침해도 선택한 장소 유지
       if(selectPlace!==beforeSelectedPlace){
+         if(!selectPlace){
+            alert('잘못된 접근입니다.');
+            navigate('/main');
+         }
          if(beforeSelectedPlace){
             if(selectPlace.id===beforeSelectedPlace.id)return;
          }
@@ -150,17 +154,20 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
         meeingTime: recoTime,
         isDone: false,
     };
-    // console.log(data);
+    console.log(data);
     try {
+      // setTimeout(() => {
+      //    // restTimer 만큼 시간이 지나면 모집완료 덮어쓰기
+      //    // get으로 먼저 아이디 조회?
+      //    // await axios.put(`${url}/api/post/${postId}`, { isDone: true });
+      //    // alert(postId의+'모집이 완료되었습니다.');
+      // }, restTimer);
+      // setTimeout(() =>{
+      //   // restTimer-600000 만큼 시간이 지나면 => 10분 전 알림
+      // }, restTimer-600000);
       setTimeout(() => {
-         // restTimer 만큼 시간이 지나면 모집완료 덮어쓰기
-         // get으로 먼저 아이디 조회?
-         // await axios.put(`${url}/api/post/${postId}`, { isDone: true });
-         // alert(postId의+'모집이 완료되었습니다.');
-      }, restTimer);
-      setTimeout(() =>{
-        // restTimer-600000 만큼 시간이 지나면 => 10분 전 알림
-      }, restTimer-600000);
+         alert('10초가 지나 모집이 완료되었습니다.')
+      },10000); //
 
       alert('글 작성이 완료되었습니다.');
       const url = import.meta.env.VITE_API_URL;
@@ -230,11 +237,12 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
             <div className='mt-[20px] mb-[32px] w-[100%] h-[1px] bg-[#888888]'></div>
             {selectPlace&&
             <div className='flex justify-between mb-8 mx-3'>
-            <dl className='flex flex-col justify-center'>
-               <dt></dt>
-               <dt className='text-md'>{selectPlace.place_name}</dt>
-               <dd className='text-sm font-thin'>{selectPlace.road_address_name}</dd>
-            </dl>
+            {selectPlace&&
+               <dl className='flex flex-col justify-center'>
+                  <dt className='text-md'>{selectPlace.place_name}</dt>
+                  <dd className='text-sm font-thin'>{selectPlace.road_address_name}</dd>
+               </dl>
+            }
             <div className='mr-4 flex flex-col items-center'>
                <span className='font-bold'>모집 인원</span>
                <span className='mb-2 text-xs text-gray-600 font-thin'>*본인 포함</span>

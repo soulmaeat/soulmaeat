@@ -31,7 +31,7 @@ export const Location:FC = () => {
     const storedLatLng = localStorage.getItem('latLng');
     return storedLatLng ? JSON.parse(storedLatLng) : {lat: 37.56100278, lng: 126.9996417};
   });
-  const [isActive, setIsActive] = useState<boolean>(false);
+  // const [isActive, setIsActive] = useState<boolean>(false);
   const badgeNum = '지번',
         badgeRoad = '도로명',
         badgeAdmin = '행정동';
@@ -58,7 +58,7 @@ export const Location:FC = () => {
     }
   }, [marker]);
 
-  // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
+  // 마커,주소정보 갱신
   useEffect(() => {
     if (kakaoMap && geocoder && marker) {
       getAddr();
@@ -145,7 +145,6 @@ export const Location:FC = () => {
         }
       });
       setIsLoading(false);
-      setIsActive(true);
     }else{
       setTimeout(() => {
         if(isLoading&&!locationInfo&&!latLng){ 
@@ -183,7 +182,11 @@ export const Location:FC = () => {
   };
   // 현위치 재검색
   const reloadHandler = () => {
-    getCurrentLocation();
+    const getKakaoMap = async()=>{
+      await createKakaoMap();
+      await getCurrentLocation();
+    }
+    getKakaoMap();
   };
 
   const sendLocation = () => { // 위치 저장 버튼을 클릭해야만 로컬에 저장
@@ -247,10 +250,10 @@ export const Location:FC = () => {
         </div>
         <div className='size-4/5 max-h-12 mt-6  mb-4'>
           <button 
-          className={`size-full rounded-full ${isActive? 'bg-customOrange text-white' : 'bg-[#F5F5F5] text-[#BDBDBD]'} font-bold text-base`}
-          onClick={()=>{if(isActive)sendLocation()}}
+          className={`size-full rounded-full ${!isLoading? 'bg-customOrange text-white' : 'bg-[#F5F5F5] text-[#BDBDBD] cursor-default'} font-bold text-base`}
+          onClick={()=>{if(!isLoading)sendLocation()}}
           >
-            {isActive? '이 위치로 주소 등록' : '위치 정보를 가져오는 중입니다.'}
+            {!isLoading? '이 위치로 주소 등록' : '위치 정보를 가져오는 중입니다.'}
           </button>
           <p onClick={()=>{setIsShowModal(true)}}
           className='underline underline-offset-4 text-sm mt-1 text-gray-500 cursor-pointer'>* 직접 검색하고 싶어요</p>

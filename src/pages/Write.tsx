@@ -62,12 +62,13 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
     });
   };
   
+  // reset 버튼, 클릭 시 검색어 초기화 및 display 상태관리 
   const changeHandler = (e:ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
     setMsg('');
-    if(e.target.value){
+    if(e.target.value){ // 검색어가 있을 때
       setDisplayStatus('block');
-    }else{
+    }else{ // 검색어가 없을 때
       setDisplayStatus('none');
     }
     setKeyword(e.target.value);

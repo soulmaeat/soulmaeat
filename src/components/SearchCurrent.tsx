@@ -42,7 +42,7 @@ export const SearchCurrent:FC<LocationProps> = ({closeModal, appear})=>{
     }
   },[currentPlace]);
 
-  useEffect(() => {
+  useEffect(() => { // 검색어의 길이를 체크하여 x 버튼을 보여줄지 결정
     if(keyword.trim().length > 0){
       setDisplayStatus('block');
     }else{
