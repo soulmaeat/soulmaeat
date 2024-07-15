@@ -34,7 +34,7 @@ export interface User {
     PreferenceList: string[];
     _id: string;
   }[];
-  userSoulpay: number;
+  soulpay: number;
 }
 
 export interface UserData {
