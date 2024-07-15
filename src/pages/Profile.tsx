@@ -40,12 +40,6 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
     }
   }, [userData, setSoulpay]);
 
-  // 충전 후 소울페이 업데이트 함수
-  // const handleChargeUpdate = (chargedAmount: number) => {
-  //   const updatedSoulpay = soulpay + chargedAmount;
-  //   setSoulpay(updatedSoulpay); // Context에서 소울페이 업데이트
-  // };  
-
   // 로그아웃 처리 함수
   const handleLogout = () => {
     setIsLogin(false);
