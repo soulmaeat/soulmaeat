@@ -1,61 +1,15 @@
-import React, { useEffect, useRef } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useWallet } from '../contexts/WalletContext';
-import { UserData } from '../App';
+// ChargeConfirmation.tsx
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface ChargeProps {
-  userData: UserData | null;
-}
-
-const ChargeConfirmation: React.FC<ChargeProps> = ({ userData }) => {
+const ChargeConfirmation: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { state } = location;
-  const amount = state?.amount;
-  const { setUserSoulpay, userSoulpay } = useWallet();
-  const buttonRef = useRef<HTMLButtonElement>(null);
-
-  const handleConfirm = async () => {
-    if (amount) {
-      try {
-        const storedUserInfo = sessionStorage.getItem('userInfo');
-        const token = storedUserInfo ? JSON.parse(storedUserInfo).token : {};
-
-        if (!token) {
-          console.error('세션 스토리지에서 토큰을 찾을 수 없습니다.');
-          return;
-        }
-
-        // 서버에 충전 요청 보내기
-        const response = await axios.put(
-          'http://localhost:3000/api/charge',
-          { email: userData?.user?.email, soulpay: amount },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
-        const { soulpay } = response.data;
-        const updatedBalance = userSoulpay + soulpay; // 현재 소울페이에 충전된 금액을 합산
-        setUserSoulpay(updatedBalance); // WalletContext에서 제공하는 setUserSoulpay 함수를 사용하여 소울페이 업데이트
-        localStorage.setItem('userSoulpay', updatedBalance.toString()); // localStorage에 저장
-
-        // 세션 스토리지에도 토큰 정보와 함께 저장
-        if (storedUserInfo) {
-          const userInfo = JSON.parse(storedUserInfo);
-          sessionStorage.setItem('userInfo', JSON.stringify({
-            ...userInfo,
-            userSoulpay: updatedBalance,
-          }));
-        }
-
-        navigate('/profile');
-      } catch (error) {
-        console.error('소울페이 충전 중 오류 발생:', error);
-      }
-    }
-  };
 
   useEffect(() => {
+    const handleConfirm = () => {
+      navigate('/profile');
+    };
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Enter') {
         handleConfirm();
@@ -66,7 +20,9 @@ const ChargeConfirmation: React.FC<ChargeProps> = ({ userData }) => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [amount, handleConfirm]);
+  }, [navigate]);
+
+  const selectedAmount = parseFloat(localStorage.getItem('selectedAmount') || '0');
 
   return (
     <div className="flex flex-col items-center justify-between min-h-screen p-5">
@@ -78,19 +34,16 @@ const ChargeConfirmation: React.FC<ChargeProps> = ({ userData }) => {
             </svg>
           </div>
           <div className="text-center">
-            {amount && (
-              <div className="text-2xl font-semibold">
-                <span className="text-customOrange">{amount.toLocaleString()}</span> 원을
-              </div>
-            )}
+            <div className="text-2xl font-semibold">
+              <span className="text-customOrange">{selectedAmount}</span>원을
+            </div>
             <div className="text-2xl font-semibold">충전 완료했어요</div>
           </div>
         </div>
       </div>
       <button
-        ref={buttonRef}
         className="w-full py-3 bg-customOrange text-white text-xl rounded-full"
-        onClick={handleConfirm}
+        onClick={() => navigate('/profile', { replace: true })}
       >
         확인
       </button>
