@@ -1,56 +1,27 @@
-import React, { useEffect, useState, Component } from 'react';
+import React, { useState } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import TabBar from '../components/TabBar';
-import { PostData, UserData } from '../App';
+import { PostData, UserData, UserInfo } from '../App';
 import MainList from '../components/MainList';
 
-interface Post {
-  post: PostData;
-  date: string;
-  content: string;
-  author: string;
-  selectedKeyword: [
-    {
-      likeList: string[];
-      _id: string;
-    }
-  ];
-}
-
 interface ActivityListProps {
+  postData: PostData[] | null;
   userData: UserData | null;
 }
 
-const ActivityList: React.FC<ActivityListProps> = ({ userData }) => {
+const ActivityList: React.FC<ActivityListProps> = ({ userData, postData }) => {
   const navigate = useNavigate();
-  const [activities, setActivities] = useState<Post[]>([]); // 사용자 활동 내역 상태 관리
-  const user = userData?.user || {
-    userId: '',
-  }
-  
-  useEffect(() => {
-    getPost();
-  }, []);
 
-  const getPost = async () => {
-  const url = import.meta.env.VITE_API_URL;
-  try {
-    const response = await axios.get<{ posts: Post[] }>(`${url}/api/posts`);
-    const userPosts = response.data.posts.filter(post => post.author === user.userId);
-    userPosts.forEach(post => {
-      if (typeof post.author === 'string') {
-        const authorPosts = response.data.posts.filter((p: Post) => p.author === post.author);
-        console.log(post.author);
-        console.log(`${post.author}의 활동내역: ${authorPosts.length}`);
-      }
-    });
-    setActivities(userPosts); // 필터링된 포스트를 상태로 설정
-  } catch (err) {
-    console.warn(err);
-    }
-  };
+  const storedUserInfo = sessionStorage.getItem('userInfo');
+  const userId: string = storedUserInfo
+    ? JSON.parse(storedUserInfo).userId
+    : {};
+
+    console.log(postData);
+
+  const filteredPost = postData?.filter(post => post.author === userId);
+  console.log(filteredPost)
 
   const handleGoBack = () => {
     navigate(-1); // 이전 페이지로 돌아가기
@@ -63,16 +34,15 @@ const ActivityList: React.FC<ActivityListProps> = ({ userData }) => {
         <h1 className="mx-2">활동내역</h1>
       </div>
 
-      <p className="my-3 text-right">총 {activities.length}건</p>
+      <p className="my-3 text-right">총 {filteredPost?.length}건</p>
 
       <div className="space-y-[14px] mb-[80px]">
-        {activities.length === 0 ? (
+        {postData?.length === 0 ? (
           <p>활동내역이 없습니다.</p>
         ) : (
-          activities.map((activity, index) => (
+          filteredPost?.map((activity, index) => (
             <div key={index}>
-              <p className="mb-2 font-semibold text-sm">{activity.date}</p>
-              <MainList post={{ ...activity}} />
+              <MainList post={activity} />
             </div>
           ))
         )}
