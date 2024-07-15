@@ -1,4 +1,4 @@
-import { useState, useEffect, FC } from 'react';
+import { useState, useEffect, FC, ChangeEvent } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PreferKeyword from '../components/PreferKeyword';
 import { Bills, BillsData } from '../components/Bills';
@@ -29,6 +29,10 @@ interface DetailData {
   y: number;
   joinedPeople: number;
   bills: BillsData;
+  date: string;
+  currentTime: string;
+  meeingTime: string;
+  isDone: boolean;
 }
 
 interface WriteProps { // props로 받아올 user 정보
@@ -44,6 +48,16 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
    const [beforeSelectedPlace, setBeforeSelectedPlace] = useState<any>(null);
    const [joinedPeople, setJoinedPeople] = useState<number>(2);
    const [keywordLen, setKeywordLen] = useState<number>(0);
+   const [restTime, setRestTime] = useState<number>(1800000); // 30분
+   const [now, setNow] = useState<Date>(new Date());
+   const [year, setYear] = useState<number>(now.getFullYear());
+   const [month, setMonth] = useState<string>(String(now.getMonth() + 1).padStart(2, '0')); // padStart(2, '0')으로 2자리수로 맞춰줌
+   const [day, setDay] = useState<string>(String(now.getDate()).padStart(2, '0'));
+   const [meetingDate, setMeetingDate] = useState<string>(`${year}-${month}-${day}`); // 기본: 오늘 날짜
+   const [recoTime, setRecoTime] = useState<string>(new Date(now.getTime() + restTime).toTimeString().slice(0, 5));
+   const [msg, setMsg] = useState<string>(''); // 시간이 지났을 때 메시지
+   const [dateMgs, setDateMsg] = useState<string>(''); // 날짜가 지났을 때 메시지
+   const [restTimer, setRestTimer] = useState<any>(null);
    const navigate = useNavigate();
    const location = useLocation();
    const { selectPlace } = location.state || {};
@@ -61,29 +75,54 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
     const topScroll = () => {
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
-   
-   // 모바일 영수증이 식당 값이 바뀌지 않는 이상, localstorage에 저장해두고,
-   // 실수로 새로고침을 해도 값이 유지되도록 하기
-   const [menuList, setMenuList] = useState<any[]>([]);
 
-   useEffect(()=>{ 
+   useEffect(()=>{ // 시간 데이터 확인
+    console.log('--------------------------------------');
+    console.log('만나는 일자 : ',meetingDate);
+    console.log('현재 시간 : ',now.toTimeString().slice(0, 5));
+    console.log('만나는 시간 : ',recoTime);
+    console.log('남은 시간 : ',restTimer);
+    const millisecondsInASecond = 1000;
+    const millisecondsInAMinute = millisecondsInASecond * 60;
+    const millisecondsInAnHour = millisecondsInAMinute * 60;
+    const millisecondsInADay = millisecondsInAnHour * 24;
+    let restTime = restTimer;
+    const days = Math.floor(restTime / millisecondsInADay);
+    restTime %= millisecondsInADay; // 계산하고 남은 나머지 값 (days단위보다 작은 값)
+    const hours = Math.floor(restTime / millisecondsInAnHour);
+    restTime %= millisecondsInAnHour; // 계산하고 남은 나머지 값 (hours단위보다 작은 값)
+    const minutes = Math.floor(restTime / millisecondsInAMinute);
+    console.log(`${days}일 ${hours}시간 ${minutes}분`);
+   },[meetingDate, recoTime, restTimer])
+
+   useEffect(()=>{ // 새로고침해도 선택한 장소 유지
       if(selectPlace!==beforeSelectedPlace){
          if(beforeSelectedPlace){
             if(selectPlace.id===beforeSelectedPlace.id)return;
          }
-         setMenuList([]); // 새로운 식당을 선택할 때마다 초기화
          setBeforeSelectedPlace(selectPlace);
          localStorage.setItem('selectedPlace', JSON.stringify(selectPlace));
       }
    },[selectPlace])
    
    useEffect(() => { // 글 작성하기 버튼 활성화
-      if (title && description && selectedPayment) {
+      if (title && description && selectedPayment && !msg && !dateMgs) {
+         if(selectedPayment==='미리 결제'){ // 미리 결제 선택 시
+            if(allBills&&allBills.billsList.length>0){ // 영수증 값이 존재해야 글 작성 가능
+               setIsButtonActive(true);
+         }else return;
+      }else{
          setIsButtonActive(true);
-      } else {
-         setIsButtonActive(false);
       }
-   }, [title, description, selectedPayment]);
+   }else{
+      setIsButtonActive(false);
+   }
+   }, [title, description, selectedPayment, msg, dateMgs]);
+
+   useEffect(() => { // data를 보낼 때 현재 시간과 만남 시간을 비교하여 시간 차이 계산하기 위함
+      const diffTime = new Date(`${meetingDate} ${recoTime}`).getTime() - now.getTime();
+      setRestTimer(diffTime);
+   },[meetingDate, recoTime])
 
    const sendDetailInfo = async () => {
     const user = userData?.user || null;
@@ -106,9 +145,23 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
         y: selectPlace.x,
         joinedPeople,
         bills: allBills || { billsList: [], allTotal: '0', balance: '0' },
+        date: meetingDate,
+        currentTime: now.toTimeString().slice(0, 5),
+        meeingTime: recoTime,
+        isDone: false,
     };
     // console.log(data);
     try {
+      setTimeout(() => {
+         // restTimer 만큼 시간이 지나면 모집완료 덮어쓰기
+         // get으로 먼저 아이디 조회?
+         // await axios.put(`${url}/api/post/${postId}`, { isDone: true });
+         // alert(postId의+'모집이 완료되었습니다.');
+      }, restTimer);
+      setTimeout(() =>{
+        // restTimer-600000 만큼 시간이 지나면 => 10분 전 알림
+      }, restTimer-600000);
+
       alert('글 작성이 완료되었습니다.');
       const url = import.meta.env.VITE_API_URL;
       const response = await axios.post(`${url}/api/post`, data);
@@ -139,8 +192,38 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
       setSelectedPayment(paymentType);
    };
 
+   // 만남시간, 날짜가 다음날로 설정되어있으면 시간 제한 X 당일이면 지난 시간 선택 불가
+   const onChangeTimeHandler = (e: ChangeEvent<HTMLInputElement>) => {
+      setRecoTime(e.target.value)
+      const selectedTime = new Date(`${meetingDate} ${e.target.value}`);
+      const currentTime = new Date();
+      const diffTime = selectedTime.getTime() - currentTime.getTime();
+      if (diffTime < 0) {
+         setMsg('*지난 시간을 선택할 수 없습니다.');
+      } else {
+         setMsg('');
+      }
+      // 현재 시간도 적용 되도록
+      setNow(new Date());
+   }
+
+   const todayHandler = (e: ChangeEvent<HTMLInputElement>) => {
+      setMeetingDate(e.target.value);
+      const selectedDate = new Date(e.target.value);
+      const currentTime = new Date();
+      const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // 하루를 밀리초로 환산
+      const diffTime = selectedDate.getTime() - currentTime.getTime();
+      if (diffTime < -oneDayInMilliseconds) { // 당일까지 선택 가능하도록
+         setDateMsg('*지난 날짜를 선택할 수 없습니다.');
+      } else {
+         setDateMsg('');
+      }
+      // 현재 날짜도 적용 되도록
+      setNow(new Date());
+   }
+
    return (
-      <section className="max-w-3xl mx-automin-h-screen">
+      <section className="max-w-3xl mx-auto min-h-screen">
          <NavBar title="글 작성하기" />
          <div className='p-4'>
             <div className="text-[20px] font-bold px-5">글을 작성해주세요</div>
@@ -174,11 +257,52 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
             </div>
             }
             <textarea
-               className='w-full h-[50px] mb-[34px] border border-[#D6D6D6] rounded-[12px] p-2 py-3'
+               className='w-full h-[50px] mb-4 border border-[#D6D6D6] rounded-[12px] p-2 py-3'
                placeholder='제목을 입력해 주세요'
                value={title}
                onChange={(e) => setTitle(e.target.value)}
             ></textarea>
+            <div className='mb-6'>
+               <div className='text-md mb-2 px-3 font-bold'>모집 시간 &nbsp;
+                  <div className='font-thin text-sm mt-2'>
+                      * 정확한 날짜와 시간을 입력해주세요.
+                  </div>
+               </div>
+               <div className='px-3 mb-1'>
+                  <input 
+                  type='date' 
+                  onChange={todayHandler}
+                  value={meetingDate}
+                  min={meetingDate} // 오늘 날짜를 최소 선택 날짜로 설정
+                  className='w-[140px] h-[40px] border border-[#D6D6D6] rounded-[12px] p-2 py-3'
+                  />
+               </div>
+               <div className='flex items-center mb-1'>
+                  <div className='w-[140px] whitespace-nowrap text-red-500 text-xs ml-2'>{dateMgs}</div>
+                  <div className='w-[140px] whitespace-nowrap text-red-500 text-xs ml-6'>{msg}</div>
+               </div>
+               <div className='flex items-center px-3'>
+                  <div className='flex items-center'>
+                     <input disabled
+                        type='time'
+                        value={now.toTimeString().slice(0, 5)}
+                        className='w-[140px] h-[40px] border border-[#D6D6D6] rounded-[12px] p-2 py-3'
+                     />
+                     <div className='mx-2'>~</div>
+                     <input
+                        type='time'
+                        // step={1800}
+                        value={recoTime}
+                        onChange={onChangeTimeHandler}
+                        className='w-[140px] h-[40px] border border-[#D6D6D6] rounded-[12px] p-2 py-3'
+                     />
+                  </div>
+               </div>
+               <div className='flex items-center mt-1 text-gray-500 text-sm px-3'>
+                  <p className='ml-2 w-[140px]'>*현재 시간</p>
+                  <p className='ml-6 w-[140px]'>*만남 시간</p>
+               </div>
+            </div>
             <textarea
                className='w-full h-[300px] border border-[#D6D6D6] rounded-[12px] p-2 py-3 mb-10'
                placeholder='소개글을 입력해 주세요'

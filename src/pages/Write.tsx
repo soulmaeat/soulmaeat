@@ -167,9 +167,9 @@ const Write:FC<latLngProps> = ({latLngInfo})=>{
           <p className='text-xs my-2 pl-6 text-red-500 text-start w-full'>{msg}</p>
         </div>
       </div>
-      <div className='h-[208px]'></div>
         <div className='size-full flex flex-col items-center'>
           <ul className='h-full w-full'>
+            <li className='h-[208px] w-full'></li>
             {places&&
               places.place.map((place:any, index:number) => (
               <li key={index} onClick={()=>{

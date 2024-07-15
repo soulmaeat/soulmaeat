@@ -57,10 +57,6 @@ export const Location:FC = () => {
       marker.setMap(kakaoMap);
     }
   }, [marker]);
-  // 로컬스토리지에 위치정보 저장
-  useEffect(() => {
-    localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
-  }, [locationInfo]);
 
   // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
   useEffect(() => {
@@ -69,7 +65,6 @@ export const Location:FC = () => {
       updateMap(latLng);
       updateMarkerPosition(latLng);
     }
-    localStorage.setItem('latLng', JSON.stringify(latLng));
   }, [latLng, kakaoMap, geocoder]);
 
 
@@ -191,8 +186,7 @@ export const Location:FC = () => {
     getCurrentLocation();
   };
 
-  const sendLocation = () => {
-    // navigate('/main');
+  const sendLocation = () => { // 위치 저장 버튼을 클릭해야만 로컬에 저장
     localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
     localStorage.setItem('latLng', JSON.stringify(latLng));
     location.href = '/main';
