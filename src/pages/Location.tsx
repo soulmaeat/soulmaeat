@@ -57,10 +57,6 @@ export const Location:FC = () => {
       marker.setMap(kakaoMap);
     }
   }, [marker]);
-  // 로컬스토리지에 위치정보 저장
-  useEffect(() => {
-    localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
-  }, [locationInfo]);
 
   // 로컬스토리지에 좌표정보 저장 => 마커,주소정보 갱신
   useEffect(() => {
@@ -69,7 +65,6 @@ export const Location:FC = () => {
       updateMap(latLng);
       updateMarkerPosition(latLng);
     }
-    localStorage.setItem('latLng', JSON.stringify(latLng));
   }, [latLng, kakaoMap, geocoder]);
 
 
@@ -191,8 +186,7 @@ export const Location:FC = () => {
     getCurrentLocation();
   };
 
-  const sendLocation = () => {
-    // navigate('/main');
+  const sendLocation = () => { // 위치 저장 버튼을 클릭해야만 로컬에 저장
     localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
     localStorage.setItem('latLng', JSON.stringify(latLng));
     location.href = '/main';
@@ -200,7 +194,7 @@ export const Location:FC = () => {
   return (
     <div className='max-w-3xl h-full mx-auto text-center text-xl size-full overflow-hidden' >
       <div className="location_nav p-3 flex w-100 justify-between align-middle">
-      <Link to='/' className='inline-block'><IoIosArrowBack size={35} /></Link>
+      <Link to='/main' className='inline-block'><IoIosArrowBack size={35} /></Link>
       <h1 className='font-bold flex items-center'>지도에서 내 위치 확인</h1>
       <IoReload className='cursor-pointer' size={32} onClick={reloadHandler} />
       </div>

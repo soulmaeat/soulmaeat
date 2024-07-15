@@ -1,5 +1,5 @@
 import {FC, Dispatch, SetStateAction, useState, useEffect, ChangeEvent, FormEvent} from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { IoIosSearch } from "react-icons/io";
 import { IoCloseCircle } from "react-icons/io5";
 import { LatLng, Location } from '../pages/Location';
@@ -96,8 +96,14 @@ export const SearchCurrent:FC<LocationProps> = ({closeModal, appear})=>{
       const {address_name, road_address_name} = place;
       return {numberAddr: address_name, roadAddr: road_address_name, adminAddr: ''};
     })
-    console.log(locationInfo);
-    
+    // console.log(locationInfo);
+  }
+
+  const submitModal = ()=>{
+    localStorage.setItem('latLng', JSON.stringify({lat: currentPlace.y, lng: currentPlace.x}));
+    localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
+    navigate('/main');
+    window.location.reload()
   }
   
   return (
@@ -152,15 +158,17 @@ export const SearchCurrent:FC<LocationProps> = ({closeModal, appear})=>{
             </ul>
           </div>
           <div className='flex w-full justify-end mt-4'>
-            <button onClick={()=>{if(isActive){
-              localStorage.setItem('latLng', JSON.stringify({lat: currentPlace.y, lng: currentPlace.x}));
-              localStorage.setItem('locationInfo', JSON.stringify(locationInfo));
-              closeModal(false);
-              navigate('/main');
-            }}}
-            style={{ backgroundColor: isActive ? '#63B412' : '#F5F5F5', color: isActive ? '#FFFFFF' : '#BDBDBD'}}
-            className='px-6 rounded-2xl h-[40px] w-[140px] text-base font-bold mr-[4%]'
-            >주소 저장</button>
+              <button onClick={(e)=>{if(!isActive){ 
+                  e.preventDefault();
+                  alert('장소를 선택해주세요.');
+                  return;
+                }else{
+                submitModal();
+                closeModal(false);
+              }}}
+              style={{ backgroundColor: isActive ? '#63B412' : '#F5F5F5', color: isActive ? '#FFFFFF' : '#BDBDBD'}}
+              className={`mr-[4%] ${isActive? 'cursor-pointer':'cursor-default'} px-6 rounded-2xl h-[40px] w-[140px] text-base font-bold`}
+              >주소 저장</button>
             <button className='bg-customOrange text-white px-6 rounded-2xl h-[40px] text-base font-bold' 
             onClick={() => closeModal(false)}>닫기</button>
           </div>

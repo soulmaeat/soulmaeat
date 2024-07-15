@@ -1,51 +1,59 @@
 import '../App.css';
 import React, { useEffect, useState } from 'react';
-import { kakao } from '../App';
-import { ModalInfo } from '../components/Modals';
-import { UserData, PostData } from '../App';
-// components
 import { useNavigate, useParams } from 'react-router-dom';
+import { kakao } from '../App';
+// type
+import { ModalInfo } from '../components/Modals';
+import { UserData, PostData, UserInfo } from '../App';
+// components
 import { Modals } from '../components/Modals';
 import { IoHomeOutline } from 'react-icons/io5';
 import { IoIosArrowBack } from 'react-icons/io';
+import axios from 'axios';
 
 interface DetailProps {
+  storedUserInfo: UserInfo | null;
   postData: PostData[];
   userData: UserData | null;
 }
 
 export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
-  console.log(postData);
   const { id } = useParams();
-
-  // const likeArr = ['동성 친구만', '여러개 주문해서 나눠먹기', '음주 X'];
 
   const [kakaoMap, setKakaoMap] = useState<any>(null);
   const [modal, setModal] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
-  const [joinCount, setJoinCount] = useState<number>(1);
+  const [joinModal, setJoinModal] = useState<boolean | undefined>(false);
   const [filteredPost, setFilteredPost] = useState<PostData | null>(null);
+  const [joinCount, setJoinCount] = useState<number>(1);
+  const [joinUser, setJoinUser] = useState<string[] | []>([]);
 
   const navigate = useNavigate();
   const preferenceArr = userData?.user.userPreference[0].PreferenceList || [];
   const likeArr = filteredPost?.selectedKeyword[0].likeList || [];
 
-  console.log(likeArr);
+  console.log(postData);
 
   useEffect(() => {
     const filtered = postData.find((post) => post._id === id);
+    console.log(filtered);
+
     if (filtered) {
       setFilteredPost(filtered);
     }
+    console.log(filteredPost);
   }, [id, postData]);
 
   useEffect(() => {
     if (filteredPost) {
       loadKakaoMap();
     }
-  }, [filteredPost]);
 
-  console.log(filteredPost);
+    if (filteredPost) {
+      setJoinCount(filteredPost?.joinCount);
+      setJoinUser(filteredPost?.joinUser);
+    }
+  }, [filteredPost]);
 
   const loadKakaoMap = () => {
     if (kakao) {
@@ -99,12 +107,38 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     setConfirmModal(true);
   };
 
-  const joinCounter = () => {
-    setJoinCount(joinCount + 1);
+  const storedUserInfo = sessionStorage.getItem('userInfo');
+  const userId: UserInfo = storedUserInfo
+    ? JSON.parse(storedUserInfo).userId
+    : {};
+
+  const url = import.meta.env.VITE_API_URL;
+  const addJoin = async () => {
+    try {
+      await axios.put(`${url}/api/join`, {
+        postId: filteredPost?.postId,
+        joinCount: filteredPost && filteredPost?.joinCount + 1,
+        joinUser: [userId],
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const joindedUserWarning = () => {
+    const includeUser = filteredPost?.joinUser.some(
+      (joinUser) => joinUser === userId
+    );
+    setJoinModal(includeUser);
+
+    if (includeUser) {
+      setModal(false);
+      setConfirmModal(false);
+    }
   };
 
   const JoinModalInfo: ModalInfo = {
-    userName: '돼지력만랩',
+    userName: `${filteredPost?.author}`,
     content: '님과 같이 먹을래요?',
     payment: 22000,
     balance: 11000,
@@ -124,34 +158,50 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     rbtntext: '확인',
     ronclick: () => {
       setConfirmModal(false);
-      joinCounter();
+      addJoin();
+      setJoinCount((prevState) => prevState + 1);
+    },
+  };
+
+  const aleadyJoinModalInfo: ModalInfo = {
+    content: '이미 참가가 완료되었습니다.',
+    rbtntext: '확인',
+    ronclick: () => {
+      setJoinModal(false);
     },
   };
 
   return (
     <>
+      {joinModal ? <Modals info={aleadyJoinModalInfo} /> : null}
       {modal ? <Modals info={JoinModalInfo} /> : null}
       {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
       <section className="relative flex max-w-3xl h-full mx-auto">
         <div className="flex flex-col justify-between relative w-full">
           <div className="relative">
-            <div className="absolute top-0 left-0 flex space-x-4 p-4">
+            <div className="absolute top-0 left-0 flex space-x-4 p-4 z-30">
               <IoIosArrowBack
                 onClick={() => {
-                  navigate('/');
+                  navigate(-1);
                 }}
-                className="cursor-pointer text-white"
+                className="cursor-pointer text-black"
                 size={35}
               />
               <IoHomeOutline
                 onClick={() => {
-                  navigate('/');
+                  navigate('/main');
                 }}
-                className="cursor-pointer text-white"
+                className="cursor-pointer text-black"
                 size={35}
               />
             </div>
-            <img className="w-full max-h-72" src="/fake_img.png" alt="fake" />
+            <div
+              id="map"
+              style={{
+                width: '100%',
+                height: '250px',
+              }}
+            ></div>
           </div>
           <div className="px-2.5 detail_calc pb-[83px]">
             <div className="flex gap-1.5 pt-3">
@@ -163,10 +213,14 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
               </span>
               <span
                 className={`${
-                  joinCount >= 3 ? `bg-[#ccc]` : `bg-[#63B412]`
+                  joinCount >= (filteredPost?.joinedPeople ?? 0)
+                    ? `bg-[#ccc]`
+                    : `bg-[#63B412]`
                 } rounded-3xl px-2 py-1 text-white text-[13px]`}
               >
-                {joinCount >= 3 ? '모집완료' : '모집중'}
+                {joinCount >= (filteredPost?.joinedPeople ?? 0)
+                  ? '모집완료'
+                  : '모집중'}
               </span>
             </div>
             <div className="flex justify-between py-3 border-b border-[#ededed]">
@@ -248,24 +302,14 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
                     <p>{filteredPost?.placeName}</p>
                   </div>
                 </div>
-                <div
-                  id="map"
-                  style={{
-                    width: '100%',
-                    height: '250px',
-                    borderRadius: '10px',
-                  }}
-                ></div>
               </div>
             </div>
-            <div className="mt-3 border-t border-[#ededed]">
-              <h2 className="mt-3 font-semibold text-[#666] mb-1">
-                현재 참가자
-              </h2>
+            <div>
+              <h2>참가한 유저</h2>
               <div>
-                <span>돼지력만랩</span>
-                <span>돼지력만랩</span>
-                <span>돼지력만랩</span>
+                {filteredPost?.joinUser.map((user) => (
+                  <span>{user}</span>
+                ))}
               </div>
             </div>
             <div className="mt-3 border-t border-[#ededed]">
@@ -275,22 +319,24 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
             </div>
           </div>
           <nav className="fixed bottom-0 flex w-full max-w-3xl h-16 border-t bg-white z-20">
-            <div className="flex w-1/4 items-center justify-center">
-              <img
-                className="w-8 h-7 cursor-pointer"
-                src="/img/zzim_icon.png"
-                alt="찜하기"
-              />
-            </div>
             <button
-              onClick={() => setModal((close) => !close)}
+              onClick={() => {
+                setModal((close) => !close);
+                joindedUserWarning();
+              }}
               className={`w-full h-full text-base font-semibold text-white cursor-pointer ${
-                joinCount >= 3 ? 'bg-[#ccc] cursor-not-allowed' : 'bg-[#D75B22]'
+                joinCount >= (filteredPost?.joinedPeople ?? 0)
+                  ? 'bg-[#ccc] cursor-not-allowed'
+                  : 'bg-[#D75B22]'
               }`}
-              disabled={joinCount >= 3}
+              disabled={joinCount >= (filteredPost?.joinedPeople ?? 0)}
             >
-              {joinCount >= 3 ? '모집완료' : '참가하기'}
-              <span className="ml-2.5">{joinCount} / 3</span>
+              {joinCount >= (filteredPost?.joinedPeople ?? 0)
+                ? '모집완료'
+                : '참가하기'}
+              <span className="ml-2.5">
+                {joinCount} / {filteredPost?.joinedPeople}
+              </span>
             </button>
           </nav>
         </div>

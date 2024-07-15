@@ -18,13 +18,12 @@ import MainPage from './pages/MainPage';
 import axios from 'axios';
 
 export interface UserInfo {
-  age?: number;
-  email?: string;
-  gender?: string;
+  userId?: string | null;
   token?: string | null;
+  userSoulpay: number[]; // 추가
 }
 
-interface User {
+export interface User {
   age?: number;
   email?: string;
   gender?: string;
@@ -36,7 +35,7 @@ interface User {
     PreferenceList: string[];
     _id: string;
   }[];
-  userSoulpay?: number;
+  userSoulpay: number[];
 }
 
 export interface UserData {
@@ -52,7 +51,7 @@ export interface PostData {
   createAt?: Date;
   description?: string;
   gender?: string;
-  joinedPeople?: number;
+  joinedPeople?: number | null;
   phone?: string | undefined;
   placeName?: string;
   placeUrl?: string;
@@ -69,6 +68,8 @@ export interface PostData {
   x?: string;
   y?: string;
   _id?: string;
+  joinCount: number;
+  joinUser: string[];
 }
 
 declare global {
@@ -121,7 +122,7 @@ function App() {
     };
 
     fetchData();
-  }, [url, token]);
+  }, [token]);
 
   const routes = [
     {
@@ -137,10 +138,16 @@ function App() {
         },
         {
           path: '/detail/:id',
-          element: <Detail userData={userData} postData={postData} />,
+          element: (
+            <Detail
+              userData={userData}
+              postData={postData}
+              storedUserInfo={storedUserInfo}
+            />
+          ),
         },
         { path: '/onboard', element: <Onboarding /> },
-        { path: '/profile', element: <Profile userData={userData} /> },
+        { path: '/profile', element: <Profile userData={userData} postData={postData} /> },
         { path: '/charge', element: <Charge /> },
         { path: '/chargeconfirm', element: <ChargeConfirmation /> },
         { path: '/activity', element: <ActivityList userData={userData}/> },
