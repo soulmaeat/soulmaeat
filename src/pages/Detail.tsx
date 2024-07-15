@@ -26,6 +26,7 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
   const [joinModal, setJoinModal] = useState<boolean | undefined>(false);
   const [filteredPost, setFilteredPost] = useState<PostData | null>(null);
   const [joinCount, setJoinCount] = useState<number>(1);
+  const [joinUser, setJoinUser] = useState<string[] | []>([]);
 
   const navigate = useNavigate();
   const preferenceArr = userData?.user.userPreference[0].PreferenceList || [];
@@ -50,6 +51,7 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
 
     if (filteredPost) {
       setJoinCount(filteredPost?.joinCount);
+      setJoinUser(filteredPost?.joinUser);
     }
   }, [filteredPost]);
 
@@ -174,21 +176,20 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
       {joinModal ? <Modals info={aleadyJoinModalInfo} /> : null}
       {modal ? <Modals info={JoinModalInfo} /> : null}
       {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
-      {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
       <section className="relative flex max-w-3xl h-full mx-auto">
         <div className="flex flex-col justify-between relative w-full">
           <div className="relative">
             <div className="absolute top-0 left-0 flex space-x-4 p-4 z-30">
               <IoIosArrowBack
                 onClick={() => {
-                  navigate('/');
+                  navigate(-1);
                 }}
                 className="cursor-pointer text-black"
                 size={35}
               />
               <IoHomeOutline
                 onClick={() => {
-                  navigate('/');
+                  navigate('/main');
                 }}
                 className="cursor-pointer text-black"
                 size={35}
@@ -303,13 +304,11 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
                 </div>
               </div>
             </div>
-            <div className="mt-3 border-t border-[#ededed]">
-              <h2 className="mt-3 font-semibold text-[#666] mb-1">
-                현재 참가자
-              </h2>
+            <div>
+              <h2>참가한 유저</h2>
               <div>
-                {filteredPost?.joinUser.map((joinUser) => (
-                  <span className="font-semibold mr-1.5">{joinUser}</span>
+                {filteredPost?.joinUser.map((user) => (
+                  <span>{user}</span>
                 ))}
               </div>
             </div>

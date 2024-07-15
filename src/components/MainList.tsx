@@ -28,8 +28,14 @@ const MainList: React.FC<MainListProps> = ({ post }) => {
             <span className="inline-flex items-center rounded-[10px] bg-[#D75B22] bg-opacity-50 px-2 py-1 text-xs font-medium text-white">
               {post.selectPlace}
             </span>
-            <span className="inline-flex items-center rounded-[10px] bg-[#63B412] px-2 py-1 text-xs font-medium text-white">
-              모집중
+            <span
+              className={`inline-flex items-center rounded-[10px] ${
+                post.joinCount === post.joinedPeople
+                  ? 'bg-[#ccc]'
+                  : 'bg-[#63B412]'
+              } px-2 py-1 text-xs font-medium text-white`}
+            >
+              {post.joinCount === post.joinedPeople ? '모집완료' : '모집중'}
             </span>
           </div>
           <div className="flex space-x-2 mt-2">
@@ -38,16 +44,11 @@ const MainList: React.FC<MainListProps> = ({ post }) => {
               1h
             </span>
             <span className="flex items-center">
-              <IoPeople color="#D75B22" className="mr-[4px]" />1 /{' '}
-              {post.joinedPeople}
+              <IoPeople color="#D75B22" className="mr-[4px]" />
+              {post.joinCount} / {post.joinedPeople}
             </span>
           </div>
         </div>
-        <img
-          className="h-[80px] w-[80px] rounded-[9px] ml-auto"
-          src="https://via.placeholder.com/80"
-          alt=""
-        />
       </div>
     </div>
   );

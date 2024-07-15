@@ -122,7 +122,7 @@ function App() {
     };
 
     fetchData();
-  }, [url, token]);
+  }, [token]);
 
   const routes = [
     {
