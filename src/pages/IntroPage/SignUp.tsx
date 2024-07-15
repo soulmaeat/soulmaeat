@@ -302,7 +302,7 @@ export const SignUp: FC = () => {
               <div className="w-full border-b border-gray-400"></div>
               {passwordErr && (
                 <div className="text-red-500 text-left text-base font-normal">
-                  비밀번호 형식이 잘못되었습니다.
+                  문자와 숫자를 포함한 4~8자를 입력해주세요.
                 </div>
               )}
             </li>

@@ -1,19 +1,56 @@
-// import React from 'react';
+import React, { useEffect, useState, Component } from 'react';
 import { IoIosArrowBack } from "react-icons/io";
 import { useNavigate } from 'react-router-dom';
-import MainList from '../components/MainList';
+import axios from 'axios';
 import TabBar from '../components/TabBar';
+import { PostData, UserData } from '../App';
+import MainList from '../components/MainList';
 
-const activities = [
-  { date: '2024-07-01', content: '첫 번째 활동 내용' },
-  { date: '2024-07-02', content: '두 번째 활동 내용' },
-  { date: '2024-07-03', content: '세 번째 활동 내용' },
-  { date: '2024-07-04', content: '네 번째 활동 내용' },
-  { date: '2024-07-05', content: '다섯 번째 활동 내용' },
-];
+interface Post {
+  post: PostData;
+  date: string;
+  content: string;
+  author: string;
+  selectedKeyword: [
+    {
+      likeList: string[];
+      _id: string;
+    }
+  ];
+}
 
-export default function ActivityList() {
+interface ActivityListProps {
+  userData: UserData | null;
+}
+
+const ActivityList: React.FC<ActivityListProps> = ({ userData }) => {
   const navigate = useNavigate();
+  const [activities, setActivities] = useState<Post[]>([]); // 사용자 활동 내역 상태 관리
+  const user = userData?.user || {
+    userId: '',
+  }
+  
+  useEffect(() => {
+    getPost();
+  }, []);
+
+  const getPost = async () => {
+  const url = import.meta.env.VITE_API_URL;
+  try {
+    const response = await axios.get<{ posts: Post[] }>(`${url}/api/posts`);
+    const userPosts = response.data.posts.filter(post => post.author === user.userId);
+    userPosts.forEach(post => {
+      if (typeof post.author === 'string') {
+        const authorPosts = response.data.posts.filter((p: Post) => p.author === post.author);
+        console.log(post.author);
+        console.log(`${post.author}의 활동내역: ${authorPosts.length}`);
+      }
+    });
+    setActivities(userPosts); // 필터링된 포스트를 상태로 설정
+  } catch (err) {
+    console.warn(err);
+    }
+  };
 
   const handleGoBack = () => {
     navigate(-1); // 이전 페이지로 돌아가기
@@ -35,7 +72,7 @@ export default function ActivityList() {
           activities.map((activity, index) => (
             <div key={index}>
               <p className="mb-2 font-semibold text-sm">{activity.date}</p>
-              <MainList/>
+              <MainList post={{ ...activity}} />
             </div>
           ))
         )}
@@ -44,4 +81,6 @@ export default function ActivityList() {
       <TabBar />
     </section>
   );
-}
+};
+
+export default ActivityList;
