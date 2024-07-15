@@ -114,14 +114,14 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
          if(selectedPayment==='미리 결제'){ // 미리 결제 선택 시
             if(allBills&&allBills.billsList.length>0){ // 영수증 값이 존재해야 글 작성 가능
                setIsButtonActive(true);
-         }else return;
+         }else {setIsButtonActive(false);}
       }else{
          setIsButtonActive(true);
       }
    }else{
       setIsButtonActive(false);
    }
-   }, [title, description, selectedPayment, msg, dateMgs]);
+   }, [title, description, selectedPayment, msg, dateMgs, allBills]);
 
    useEffect(() => { // data를 보낼 때 현재 시간과 만남 시간을 비교하여 시간 차이 계산하기 위함
       const diffTime = new Date(`${meetingDate} ${recoTime}`).getTime() - now.getTime();
