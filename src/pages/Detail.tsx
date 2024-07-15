@@ -307,8 +307,9 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
             <div>
               <h2>참가한 유저</h2>
               <div>
-                {joinUser &&
-                  filteredPost?.joinUser.map((user) => <span>{user}</span>)}
+                {filteredPost?.joinUser.map((user) => (
+                  <span>{user}</span>
+                ))}
               </div>
             </div>
             <div className="mt-3 border-t border-[#ededed]">
