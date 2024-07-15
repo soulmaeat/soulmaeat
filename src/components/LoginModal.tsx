@@ -17,7 +17,7 @@ export const LoginModal: FC<LoginModalProps> = ({ closeModal, setUserData }) => 
   const onChangeHandler = (e: FormEvent<HTMLInputElement>): void => {
     const { name, value } = e.currentTarget;
     setLoginUser({ ...loginUser, [name]: value });
-    console.log('loginUser: ', loginUser);
+    // console.log('loginUser: ', loginUser);
   };
 
   const onClickHandler = async (e: any) => {
