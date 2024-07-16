@@ -72,6 +72,19 @@ export const SignUp: FC = () => {
     setTermsAccepted(e.target.checked);
   };
   const navigate = useNavigate();
+  
+  const [ssNumMsg, setSsNumMsg] = useState<string>('');
+  const [len, setLen] = useState<number>(0);
+  useEffect(() => {
+    console.log(len);
+    
+    // console.log(ssnErr, ssNumSndErr)
+    if(ssnErr||ssNumSndErr){
+      setSsNumMsg('주민번호 형식이 맞지않습니다.');
+    }else{
+      setSsNumMsg('');
+    }
+  }, [ssnErr, ssNumSndErr, ssNum, ssNumSnd]);
 
   useEffect(() => {
     if (ssNum.length === 6 && ssNumSnd.length === 1) {
@@ -197,14 +210,14 @@ export const SignUp: FC = () => {
     setUser({ ...user, [name]: value });
   
     if (name === 'email') {
-      console.log(name, value);
+      // console.log(name, value);
       
       let isEmailValid: boolean =
       /^([A-Za-z])[\w-_]+(\.[\w]+)*@([a-zA-Z])+(\.)[a-z]{2,3}$/.test(value);
       setEmailErr(!isEmailValid);
     }
     if (name == 'password'){
-      console.log(name, value);
+      // console.log(name, value);
       let isPasswdValid: boolean = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,8}$/.test(value);
       if(isPasswdValid){
         setpasswordErr(false);
@@ -229,6 +242,7 @@ export const SignUp: FC = () => {
     const month = parseInt(value.slice(2, 4), 10);
     const day = parseInt(value.slice(4, 6), 10);
     const date = new Date(years, month - 1, day);
+    setLen(value.length)
     
     if(value.length <= 6){ // 6자 제한
       setSsNum(value)
@@ -386,9 +400,7 @@ export const SignUp: FC = () => {
                     className="no-spinner w-full px-1 py-2 text-xl text-gray-800 text-left font-semibold"
                   />
                   <div className="w-full border-b border-gray-400"></div>
-                  {ssnErr||ssNumSndErr&&
-                    <div className='text-red-500 text-left text-base font-normal'>주민번호 형식이 맞지않습니다.</div>
-                  }
+                  <div className='text-red-500 text-left text-base font-normal'>{ssNumMsg}</div>
                 </div>
                 <div className="w-1/2 relative">
                   <input
@@ -433,8 +445,8 @@ export const SignUp: FC = () => {
               ssNum &&
               ssNumSnd &&
               termsAccepted &&
-              !ssnErr &&
-              !ssNumSndErr
+              !ssNumMsg &&
+              len === 6
                 ? 'bg-[#d75b22] text-white transition-all duration-700'
                 : 'bg-[#f5f5f5] text-[#BDBDBD]'
             }`}
@@ -449,9 +461,8 @@ export const SignUp: FC = () => {
               !emailErr &&
               ssNum &&
               ssNumSnd &&
-              termsAccepted &&
-              ssnErr &&
-              ssNumSndErr
+              termsAccepted 
+              // ssNumMsg
             )}
           >
             다음
