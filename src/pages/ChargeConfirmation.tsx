@@ -7,7 +7,8 @@ const ChargeConfirmation: React.FC = () => {
 
   useEffect(() => {
     const handleConfirm = () => {
-      navigate('/profile');
+      navigate('/profile', { replace: true });
+      window.location.reload();
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -43,7 +44,10 @@ const ChargeConfirmation: React.FC = () => {
       </div>
       <button
         className="w-full py-3 bg-customOrange text-white text-xl rounded-full"
-        onClick={() => navigate('/profile', { replace: true })}
+        onClick={() => {
+          navigate('/profile', { replace: true })
+          window.location.reload();
+        }}
       >
         확인
       </button>
