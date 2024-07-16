@@ -81,7 +81,7 @@ const MainPage: React.FC<MainProps> = ({ addrInfo, postData }) => {
           </div>
         )}
       </div>
-      <button style={{right: 'calc(50% - 384px)'}}
+      <button style={{right: '20px', bottom: '120px'}}
        className="fixed bottom-[120px] w-[50px] h-[50px] bg-[#D75B22] text-white flex items-center justify-center rounded-[50%] cursor-pointer-">
         <Link to="/write">
           <BiPencil className="w-6 h-6" />

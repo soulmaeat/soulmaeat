@@ -156,7 +156,7 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
     };
     console.log(data);
     try {
-      // setTimeout(() => {
+      // const interval = setTimeout(() => {
       //    // restTimer 만큼 시간이 지나면 모집완료 덮어쓰기
       //    // get으로 먼저 아이디 조회?
       //    // await axios.put(`${url}/api/post/${postId}`, { isDone: true });
@@ -165,9 +165,6 @@ const WriteTwo:FC<WriteProps> = ({userData}) => {
       // setTimeout(() =>{
       //   // restTimer-600000 만큼 시간이 지나면 => 10분 전 알림
       // }, restTimer-600000);
-      setTimeout(() => {
-         alert('10초가 지나 모집이 완료되었습니다.')
-      },10000); //
 
       alert('글 작성이 완료되었습니다.');
       const url = import.meta.env.VITE_API_URL;
