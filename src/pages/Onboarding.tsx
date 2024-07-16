@@ -38,7 +38,7 @@ const Onboarding: React.FC = () => {
           introduce: selectedIntroduce,
         });
 
-        navigate('/intropage');
+        navigate('/');
       } catch (error) {
         console.error('취향 저장 실패:', error);
         // 에러 처리
