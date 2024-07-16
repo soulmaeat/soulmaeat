@@ -119,6 +119,14 @@ const Profile: React.FC<ProfileProps> = ({ userData, postData }) => {
     }
   };
 
+  // 충전 후 프로필 페이지로 이동 시 로컬 스토리지에서 소울페이 값 업데이트
+  useEffect(() => {
+    const savedSoulpay = localStorage.getItem('soulpay');
+    if (savedSoulpay !== null) {
+      setSoulpay(parseInt(savedSoulpay, 10));
+    }
+  }, []);
+
   return (
     <>
       <NavBar title="마이페이지" />
