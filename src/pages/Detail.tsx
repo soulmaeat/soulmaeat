@@ -24,6 +24,10 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
   const [modal, setModal] = useState<boolean>(false);
   const [confirmModal, setConfirmModal] = useState<boolean>(false);
   const [joinModal, setJoinModal] = useState<boolean | undefined>(false);
+  const [authorModal, setAuthorModal] = useState<boolean | undefined>(false);
+  const [postConfirmed, setPostConfirmed] = useState<boolean | undefined>(
+    false
+  );
   const [filteredPost, setFilteredPost] = useState<PostData | null>(null);
   const [joinCount, setJoinCount] = useState<number>(1);
   const [joinUser, setJoinUser] = useState<string[] | []>([]);
@@ -59,7 +63,6 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     if (kakao) {
       const container = document.getElementById('map');
       const options = {
-        // 건대 입구역 기준
         center: new kakao.maps.LatLng(filteredPost?.x, filteredPost?.y),
         level: 2,
       };
@@ -67,18 +70,18 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
       // Map 객체에 대한 참조 저장
       setKakaoMap(map);
 
-      // 마커가 표시될 위치입니다
+      // 마커가 표시될 위치
       let markerPosition = new kakao.maps.LatLng(
         filteredPost?.x,
         filteredPost?.y
       );
 
-      // 마커를 생성합니다
+      // 마커를 생성
       let marker = new kakao.maps.Marker({
         position: markerPosition,
       });
 
-      // 마커가 지도 위에 표시되도록 설정합니다
+      // 마커가 지도 위에 표시
       marker.setMap(map);
       map.setZoomable(false);
 
@@ -87,18 +90,18 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
             ${filteredPost?.selectPlace} 
             <br>
             <a href=${filteredPost?.placeUrl} style="color:#D75B22" target="_blank">
-              사이트 보기
+              가게 정보 보기
             </a>
           </div>`,
-        iwPosition = new kakao.maps.LatLng(33.450701, 126.570667); //인포윈도우 표시 위치입니다
+        iwPosition = new kakao.maps.LatLng(33.450701, 126.570667);
 
-      // 인포윈도우를 생성합니다
+      // 인포윈도우를 생성
       let infowindow = new kakao.maps.InfoWindow({
         position: iwPosition,
         content: iwContent,
       });
 
-      // 마커 위에 인포윈도우를 표시합니다. 두번째 파라미터인 marker를 넣어주지 않으면 지도 위에 표시됩니다
+      // 마커 위에 인포윈도우를 표시.
       infowindow.open(map, marker);
     }
   };
@@ -119,6 +122,7 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
         postId: filteredPost?.postId,
         joinCount: filteredPost && filteredPost?.joinCount + 1,
         joinUser: [userId],
+        postConfirmed: postConfirmed,
       });
     } catch (err) {
       console.log(err);
@@ -171,11 +175,25 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
     },
   };
 
+  const authorModalInfo: ModalInfo = {
+    content: `확정하기를 선택하시면 수정이 불가합니다. 정말 확정하시겠습니까?`,
+    lbtntext: '취소',
+    rbtntext: '확정하기',
+    lonclick: () => {
+      setAuthorModal(false);
+    },
+    ronclick: () => {
+      setPostConfirmed(true);
+      setAuthorModal(false);
+    },
+  };
+
   return (
     <>
       {joinModal ? <Modals info={aleadyJoinModalInfo} /> : null}
       {modal ? <Modals info={JoinModalInfo} /> : null}
       {confirmModal ? <Modals info={ConfirmModalInfo} /> : null}
+      {authorModal ? <Modals info={authorModalInfo} /> : null}
       <section className="relative flex max-w-3xl h-full mx-auto">
         <div className="flex flex-col justify-between relative w-full">
           <div className="relative">
@@ -213,13 +231,18 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
               </span>
               <span
                 className={`${
-                  joinCount >= (filteredPost?.joinedPeople ?? 0)
+                  joinCount >= (filteredPost?.joinedPeople ?? 0) ||
+                  postConfirmed
                     ? `bg-[#ccc]`
                     : `bg-[#63B412]`
                 } rounded-3xl px-2 py-1 text-white text-[13px]`}
               >
-                {joinCount >= (filteredPost?.joinedPeople ?? 0)
-                  ? '모집완료'
+                {userId !== filteredPost?.author
+                  ? joinCount >= (filteredPost?.joinedPeople ?? 0)
+                    ? '모집완료'
+                    : '모집중'
+                  : postConfirmed
+                  ? '확정 완료'
                   : '모집중'}
               </span>
             </div>
@@ -321,17 +344,26 @@ export const Detail: React.FC<DetailProps> = ({ userData, postData }) => {
           <nav className="fixed bottom-0 flex w-full max-w-3xl h-16 border-t bg-white z-20">
             <button
               onClick={() => {
-                setModal((close) => !close);
-                joindedUserWarning();
+                userId === filteredPost?.author
+                  ? setAuthorModal(true)
+                  : joindedUserWarning();
               }}
               className={`w-full h-full text-base font-semibold text-white cursor-pointer ${
-                joinCount >= (filteredPost?.joinedPeople ?? 0)
+                joinCount >= (filteredPost?.joinedPeople ?? 0) || postConfirmed
                   ? 'bg-[#ccc] cursor-not-allowed'
                   : 'bg-[#D75B22]'
               }`}
-              disabled={joinCount >= (filteredPost?.joinedPeople ?? 0)}
+              disabled={
+                userId !== filteredPost?.author
+                  ? joinCount >= (filteredPost?.joinedPeople ?? 0)
+                  : postConfirmed
+              }
             >
-              {joinCount >= (filteredPost?.joinedPeople ?? 0)
+              {userId === filteredPost?.author
+                ? !postConfirmed
+                  ? '확정하기'
+                  : '확정완료'
+                : joinCount >= (filteredPost?.joinedPeople ?? 0)
                 ? '모집완료'
                 : '참가하기'}
               <span className="ml-2.5">
